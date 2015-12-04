@@ -90,8 +90,8 @@ void vga_putchar(char c)
  
 void vga_writestring(const char* data)
 {
-	size_t datalen = strlen(data);
-	for(size_t i = 0;i < datalen;i++)
+    size_t datalen = strlen(data);
+    for(size_t i = 0;i < datalen;i++)
         vga_putchar(data[i]);
 }
 
