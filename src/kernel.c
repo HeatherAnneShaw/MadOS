@@ -109,7 +109,8 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                 mmap->len >> 32,
                 mmap->len & 0xffffffff,
                 (unsigned) mmap->type);
-    }*/
+    }
+    */
     /// MAGIC STARTS HERE
     
 }
