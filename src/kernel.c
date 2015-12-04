@@ -90,7 +90,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
-     
+    /*
     // Are mmap_* valid? 
     if(CHECK_FLAG (mbi->flags, 6))
     {
@@ -109,7 +109,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                 mmap->len >> 32,
                 mmap->len & 0xffffffff,
                 (unsigned) mmap->type);
-    }
+    }*/
     /// MAGIC STARTS HERE
     
 }

@@ -60,7 +60,7 @@ void vga_scroll(void)
     vga_row = VGA_HEIGHT - 1;
     vga_column = 0;
 }
- 
+
 void vga_putchar(char c)
 {
     switch(c)

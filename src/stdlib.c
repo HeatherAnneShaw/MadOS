@@ -25,7 +25,7 @@ void outb(unsigned int port,unsigned char value)
 extern void* MEM_KLUDGE;
 void* malloc(size_t size)
 {
-    return MEM_KLUDGE+size+1;
+    return MEM_KLUDGE+size;
 }
 
 void free(void* ptr);
