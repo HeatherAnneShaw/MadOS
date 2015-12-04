@@ -48,27 +48,43 @@ void vga_putentryat(char c, uint8_t color, size_t x, size_t y)
     update_cursor(x+1, y);
 }
  
+void vga_scroll(void)
+{
+    for(int y = 0;y < VGA_HEIGHT;y++)
+    {
+        for(int x = 0;x < VGA_WIDTH;x++)
+        {
+            VGA_BUFFER[y * VGA_WIDTH + x] = VGA_BUFFER[(y + 1) * VGA_WIDTH + x];
+        }
+    }
+    vga_row = VGA_HEIGHT - 1;
+    vga_column = 0;
+}
+ 
 void vga_putchar(char c)
 {
-    if(c == '\n')
+    switch(c)
     {
+        case '\r':
+            vga_column = 0;
+            break;
+        case '\n':
+            vga_column = 0;
+            ++vga_row;
+            break;
+        case '\t':
+            vga_column += vga_column % 4;
+            break;
+        default:
+            vga_putentryat(c, vga_color, vga_column, vga_row);
+            ++vga_column;
+            break;
+    }
+    if(vga_column == VGA_WIDTH)
         vga_column = 0;
-        ++vga_row;
-        update_cursor(vga_column, vga_row);
-        return;
-    }
-    else if(c == '\t')
-    {
-        vga_column += vga_column % 4;
-    }
-    else
-        vga_putentryat(c, vga_color, vga_column, vga_row);
-	if(++vga_column == VGA_WIDTH)
-    {
-		vga_column = 0;
-		if(++vga_row == VGA_HEIGHT)
-			vga_row = 0;
-	}
+    if(vga_row == VGA_HEIGHT)
+        vga_scroll();
+    update_cursor(vga_column, vga_row);
     return;
 }
  
