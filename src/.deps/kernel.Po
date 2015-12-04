@@ -1,0 +1,9 @@
+kernel.o: kernel.c /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdint.h \
+ /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdint-gcc.h
+
+/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdint.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdint-gcc.h:
