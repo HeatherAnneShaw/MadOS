@@ -22,19 +22,64 @@ void outb(unsigned int port,unsigned char value)
    asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
 }
 
-char MEM_KLUDGE[16384];
-char* MEM_KLUDGE_END = MEM_KLUDGE + 16384;
+/******************************************************************
+    This malloc / free implementation is just temporary so that
+    I may have stone age memory management while I work on other
+    things.
+*******************************************************************/
+#define MEM_EARLY_SIZE 1024
+mem_entry_t MEM_FLAT_TABLE[MEM_EARLY_SIZE];
+mem_entry_t* MEM_FLAT_TABLE_TOP = MEM_FLAT_TABLE;
+
+char MEM_KLUDGE[MEM_EARLY_SIZE];
+char* MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
 char* MEM_PTR = MEM_KLUDGE;
+
+void mem_initialize(void)
+{
+    for(unsigned i = 0;i < MEM_EARLY_SIZE;i++)
+    {
+        MEM_KLUDGE[i] = 0;
+        (MEM_FLAT_TABLE+i)->ptr = NULL;
+        (MEM_FLAT_TABLE+i)->size = 0;
+    }
+}
+
 malloc_t* malloc = malloc_early;
 void* malloc_early(size_t size)
 {
     MEM_PTR += size;
-    if(MEM_KLUDGE_END <= MEM_PTR)
+    if(MEM_PTR >= MEM_KLUDGE_END)
         panic("malloc", 0);
-    return MEM_PTR;
+    
+    MEM_FLAT_TABLE_TOP->ptr = MEM_PTR - size;
+    MEM_FLAT_TABLE_TOP->size = size;
+    MEM_FLAT_TABLE_TOP += 1;
+    return MEM_PTR - size;
 }
 
-void free(void* ptr);
+void free(void* ptr)
+{
+    int i;
+    for(i = 0;i <= MEM_EARLY_SIZE;i++)
+    {
+        if((MEM_FLAT_TABLE+i)->ptr == ptr)
+        {
+            (MEM_FLAT_TABLE+i)->ptr = NULL;
+            if(ptr + (MEM_FLAT_TABLE+i)->size == MEM_PTR)
+            {
+                MEM_PTR -= (MEM_FLAT_TABLE+i)->size;
+                (MEM_FLAT_TABLE+i)->size = 0;
+            }
+            break;
+        }
+    }
+    if(i == MEM_EARLY_SIZE) return;
+    if((MEM_FLAT_TABLE + i) == (MEM_FLAT_TABLE_TOP - 1))
+    {
+        MEM_FLAT_TABLE_TOP -= 1;
+    }
+}
 
 void* calloc(size_t nmemb, size_t size);
 void* realloc(void* ptr, size_t size);

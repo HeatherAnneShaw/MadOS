@@ -1,5 +1,5 @@
 
-CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Werror -I../include
+CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O0 -Wall -Wextra -Werror -I../include
 
 all:
 	gcc $(CFLAGS) -c stdlib.c -o stdlib.o

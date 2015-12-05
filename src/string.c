@@ -56,6 +56,7 @@ char* itoa(intmax_t n, unsigned int base, bool signess)
         s[i++] = '-';
     
     reverse(s);
+    free(s);
     return s;
 }
 

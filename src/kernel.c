@@ -21,29 +21,14 @@
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
-void main(/*multiboot_uint32_t magic, multiboot_info_t* mbi*/)
+void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
+    mem_initialize();
     vga_initialize();
     printf("Booting MadOS v0.1\n\n");
     vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     
-    char* a;
-    extern char MEM_KLUDGE[16384];
-    for(int c = 0;;c++)
-    {
-        puts("\nmalloc:");
-        for(int i = 0;i < 80;i++)
-        {
-            a = malloc(1);
-            *a = i + '0';
-            vga_putchar(*a);
-        }
-
-        puts("\nMEM_KLUDGE:");
-        for(int i = 1;i <= 80;i++)
-            vga_putchar(MEM_KLUDGE[i+c*80]);
-    }
-    /*
+    
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
         printf("Invalid magic number: 0x%x\n", (unsigned) magic);
@@ -109,24 +94,32 @@ void main(/*multiboot_uint32_t magic, multiboot_info_t* mbi*/)
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
     
-    // Are mmap_* valid? 
-    if(CHECK_FLAG (mbi->flags, 6))
+    char* a;
+    extern char MEM_KLUDGE[16384];
+    puts("\nmalloc:");
+    for(int i = 0;i < 80;i++)
     {
-        multiboot_memory_map_t *mmap;
-        printf("mmap_addr = 0x%x, mmap_length = 0x%x\n",
-            (unsigned) mbi->mmap_addr, (unsigned) mbi->mmap_length);
-        for (mmap = (multiboot_memory_map_t *) mbi->mmap_addr;
-                (unsigned long) mmap < mbi->mmap_addr + mbi->mmap_length;
-                mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
-                + mmap->size + sizeof (mmap->size)))
-            printf(" size = 0x%x, base_addr = 0x%x%x,"
-                " length = 0x%x%x, type = 0x%x\n",
-                (unsigned) mmap->size,
-                mmap->addr >> 32,
-                mmap->addr & 0xffffffff,
-                mmap->len >> 32,
-                mmap->len & 0xffffffff,
-                (unsigned) mmap->type);
+            a = malloc(1);
+            *a = '0';
+            putchar(*a);
+            free(a);
     }
-    */
+    char* test = malloc(5);
+    strcpy(test, "test");
+    vga_writestring(test);
+    free(test);
+    
+    for(int i = 0;i < 10;i++)
+    {
+            a = malloc(1);
+            *a = 'X';
+            putchar(*a);
+            free(a);
+    }
+    test = malloc(11);
+    strcpy(test, "1234567890");
+    puts("\n\nMEM_KLUDGE[0 - 80]");
+    for(int i = 0;i <= 80;i++)
+        printf("%c", MEM_KLUDGE[i]);
+    
 }

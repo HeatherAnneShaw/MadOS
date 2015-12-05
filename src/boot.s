@@ -25,7 +25,8 @@ global halt
 extern main
 _start:
     ; Set up the stack
-    mov esp, stack_top     
+    mov esp, stack_top
+    
     ; Push the pointer to the Multiboot information structure.
     push   ebx
     ; Push the magic value. 

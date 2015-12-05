@@ -23,6 +23,13 @@ typedef __SIZE_TYPE__ ssize_t;
 
 typedef enum { false, true } bool;
 
+typedef struct mem_entry{
+    void* ptr;
+    size_t size;
+    bool free;
+} mem_entry_t;
+
+
 #define null 0
 
 #define lambda(type, body) ({ type lambda body lambda; })
@@ -39,6 +46,7 @@ extern void outb(unsigned int port,unsigned char value);
 extern void* malloc_early(size_t size);
 typedef void* (malloc_t) (size_t);
 malloc_t* malloc;
+extern void mem_initialize(void);
 
 extern void free(void* ptr);
 extern void* calloc(size_t nmemb, size_t size);

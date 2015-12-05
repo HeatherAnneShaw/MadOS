@@ -48,7 +48,7 @@ char* __printf_f_c(char p)
 {
     char* o = malloc(2);
     o[0] = p;
-    o[1] = 0; 
+    o[1] = 0;
     return o;
 }
 char* __printf_f_i(void* p){ return itoa((int) p, 10, true); }
@@ -101,6 +101,7 @@ int sprintf(char* str, const char* __restrict format, ...)
                     char* out = printf_fun_array[cpos(format_flags, format[i])](p);
                     for(c = 0;out[c] != null;c++, ccount++)
                         str[ccount] = out[c];
+                    free(out);
                 }
                 else
                 {
@@ -137,6 +138,7 @@ int fprintf(FILE* stream, const char* __restrict format, ...)
                     p = (void*) va_arg(argp, void*);
                     char* out = printf_fun_array[cpos(format_flags, format[i])](p);
                     ccount += fwrite(out, sizeof(char), strlen(out), stream);
+                    free(out);
                 }
                 else
                 {
