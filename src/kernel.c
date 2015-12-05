@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <vga.h>
 
@@ -20,12 +21,29 @@
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
-void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
+void main(/*multiboot_uint32_t magic, multiboot_info_t* mbi*/)
 {
     vga_initialize();
     printf("Booting MadOS v0.1\n\n");
     vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     
+    char* a;
+    extern char MEM_KLUDGE[16384];
+    for(int c = 0;;c++)
+    {
+        puts("\nmalloc:");
+        for(int i = 0;i < 80;i++)
+        {
+            a = malloc(1);
+            *a = i + '0';
+            vga_putchar(*a);
+        }
+
+        puts("\nMEM_KLUDGE:");
+        for(int i = 1;i <= 80;i++)
+            vga_putchar(MEM_KLUDGE[i+c*80]);
+    }
+    /*
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
         printf("Invalid magic number: 0x%x\n", (unsigned) magic);
@@ -90,7 +108,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
-    /*
+    
     // Are mmap_* valid? 
     if(CHECK_FLAG (mbi->flags, 6))
     {
@@ -111,6 +129,4 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                 (unsigned) mmap->type);
     }
     */
-    /// MAGIC STARTS HERE
-    while(true) malloc(1);
 }

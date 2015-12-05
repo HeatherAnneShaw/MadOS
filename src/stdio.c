@@ -43,7 +43,7 @@ int puts(const char* s)
 }
 
 
-char* __printf_f_s(void* p){ return p; }
+char* __printf_f_s(char* p){ return p; }
 char* __printf_f_c(char p)
 {
     char* o = malloc(2);
@@ -59,9 +59,9 @@ char* __printf_f_b(void* p){ return itoa((unsigned int) p, 2, false); }
 
 char format_flags[25] = "sciduxb";
 char* (*printf_fun_array[25]) (void*) = {
-        __printf_f_s,
+        (typeof(*printf_fun_array)) __printf_f_s,
         (typeof(*printf_fun_array)) __printf_f_c,
-        __printf_f_i,
+        __printf_f_i,        
         __printf_f_d,
         __printf_f_u,
         __printf_f_x,
@@ -157,12 +157,13 @@ int fprintf(FILE* stream, const char* __restrict format, ...)
 extern void halt(void);
 void panic(const char* s, unsigned int e)
 {
-    vga_putchar('\n');
+    vga_writestring("\n\n");
     vga_writestring(s);
     vga_writestring(": ");
     vga_writestring(sys_errlist[e]);
+    vga_putchar(' ');
     vga_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
-    vga_writestring("\n\nKernel Panic.\n");
+    vga_writestring(" Kernel Panic \n");
     halt();
 }
 

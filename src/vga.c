@@ -45,7 +45,6 @@ void vga_putentryat(char c, uint8_t color, size_t x, size_t y)
 {
     const size_t index = y * VGA_WIDTH + x;
     VGA_BUFFER[index] = MAKE_VGAENTRY(c, color);
-    update_cursor(x+1, y);
 }
  
 void vga_scroll(void)
@@ -80,9 +79,12 @@ void vga_putchar(char c)
             ++vga_column;
             break;
     }
-    if(vga_column == VGA_WIDTH)
+    if(vga_column >= VGA_WIDTH)
+    {
         vga_column = 0;
-    if(vga_row == VGA_HEIGHT)
+        ++vga_row;
+    }
+    if(vga_row >= VGA_HEIGHT)
         vga_scroll();
     update_cursor(vga_column, vga_row);
     return;

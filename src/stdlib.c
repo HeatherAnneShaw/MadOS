@@ -22,13 +22,15 @@ void outb(unsigned int port,unsigned char value)
    asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
 }
 
-extern void* MEM_KLUDGE;
-extern void* MEM_KLUDGE_END;
+char MEM_KLUDGE[16384];
+char* MEM_KLUDGE_END = MEM_KLUDGE + 16384;
+char* MEM_PTR = MEM_KLUDGE;
 void* malloc(size_t size)
 {
-    if(MEM_KLUDGE + size > MEM_KLUDGE_END)
+    MEM_PTR += size;
+    if(MEM_KLUDGE_END <= MEM_PTR)
         panic("malloc", 0);
-    return (MEM_KLUDGE += size);
+    return MEM_PTR;
 }
 
 void free(void* ptr);

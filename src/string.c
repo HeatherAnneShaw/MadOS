@@ -44,7 +44,7 @@ char* itoa(intmax_t n, unsigned int base, bool signess)
     }
     size = digits(n, base);
     s = (char*) malloc(size+2);
-    memset(s, null, size+2);
+    memset(s, 0, size+2);
     
     i = 0;
     do

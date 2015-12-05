@@ -19,13 +19,6 @@ stack_bottom:
 resb 16384
 stack_top:
 
-;; we can use this until memory management happens
-global MEM_KLUDGE 
-global MEM_KLUDGE_END
-MEM_KLUDGE:
-    resb 16384
-MEM_KLUDGE_END:
-
 section .text
 global _start
 global halt
@@ -37,7 +30,6 @@ _start:
     push   ebx
     ; Push the magic value. 
     push   eax
-    ; call main
 	call main
 halt:
     cli
