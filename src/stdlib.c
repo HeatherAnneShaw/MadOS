@@ -25,7 +25,8 @@ void outb(unsigned int port,unsigned char value)
 char MEM_KLUDGE[16384];
 char* MEM_KLUDGE_END = MEM_KLUDGE + 16384;
 char* MEM_PTR = MEM_KLUDGE;
-void* malloc(size_t size)
+malloc_t* malloc = malloc_early;
+void* malloc_early(size_t size)
 {
     MEM_PTR += size;
     if(MEM_KLUDGE_END <= MEM_PTR)

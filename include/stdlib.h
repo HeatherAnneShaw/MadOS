@@ -36,7 +36,10 @@ typedef enum { false, true } bool;
 extern unsigned char inb(unsigned int port);
 extern void outb(unsigned int port,unsigned char value);
 
-extern void* malloc(size_t size);
+extern void* malloc_early(size_t size);
+typedef void* (malloc_t) (size_t);
+malloc_t* malloc;
+
 extern void free(void* ptr);
 extern void* calloc(size_t nmemb, size_t size);
 extern void* realloc(void* ptr, size_t size);
