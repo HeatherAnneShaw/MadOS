@@ -1,7 +1,7 @@
 
 #include <string.h>
 
-#include <modules.h>
+#include <module.h>
 #include <video.h>
 
 #define video_INIT_MESSAGE "Booting MadOS v0.1\n\n"
