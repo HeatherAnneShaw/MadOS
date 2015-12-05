@@ -22,6 +22,7 @@ stack_top:
 section .text
 global _start
 global halt
+extern __init
 extern main
 _start:
     ; Set up the stack
@@ -31,8 +32,12 @@ _start:
     push   ebx
     ; Push the magic value. 
     push   eax
+    
+    call __init
+    
     call main
 halt:
+    call __fini
     cli
     hlt
 hang:

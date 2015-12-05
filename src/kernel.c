@@ -13,23 +13,32 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <modules.h>
 #include <video.h>
-
-#if !defined(__i386__)
-#error "This is for x86 dude, wrong architecture..."
-#endif
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
-void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
+extern void (*__init_array_start []) (void);
+extern void (*__init_array_end []) (void);
+
+void __init(void)
 {
     mem_initialize();
-    video_initialize();
     
-    printf("Booting MadOS v0.1\n\n");
-    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
-    
-    
+    size_t i = __init_array_end - __init_array_start;
+    while(i--)
+        (*__init_array_start[i])();
+}
+
+void __fini(void)
+{
+    size_t i = __fini_array_end - __fini_array_start;
+    while(i--)
+        (*__fini_array_start[i])();
+}
+
+void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
+{
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
         printf("Invalid boot magic: 0x%x\n", (unsigned) magic);

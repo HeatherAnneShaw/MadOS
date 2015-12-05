@@ -1,7 +1,10 @@
 
-#include <video.h>
 #include <string.h>
 
+#include <modules.h>
+#include <video.h>
+
+#define video_INIT_MESSAGE "Booting MadOS v0.1\n\n"
 #define video_BUFFER ((uint16_t*) 0xB8000)
 #define video_WIDTH 80
 #define video_HEIGHT 25
@@ -10,10 +13,13 @@ size_t video_row = 0;
 size_t video_column = 0;
 uint8_t video_color;
 
-void video_initialize()
+void __attribute__((constructor)) video_initialize()
 {
 	video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_BLACK));
 	video_clear();
+    
+    video_writestring(video_INIT_MESSAGE, strlen(video_INIT_MESSAGE));
+    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
 }
 
 void video_clear(void)
@@ -99,7 +105,5 @@ void video_writestring(const char* data, size_t size)
     for(size_t i = 0;i < size;i++)
         video_putchar(data[i]);
 }
-
-
 
 
