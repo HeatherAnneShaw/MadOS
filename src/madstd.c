@@ -6,14 +6,26 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
-#include <vga.h>
+#include <video.h>
+
+unsigned char inb(unsigned int port)
+{
+   unsigned char ret;
+   asm volatile ("inb %%dx,%%al":"=a" (ret):"d" (port));
+   return ret;
+}
+
+void outb(unsigned int port,unsigned char value)
+{
+   asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
+}
 
 ssize_t write(int fildes, const void* buf, size_t nbyte)
 {
     switch(fildes)
     {
-        case (int) stdout:
-            vga_writestring(buf);
+        default:
+            video_writestring(buf, nbyte);
             break;
     }
     return nbyte;

@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <vga.h>
+#include <video.h>
 
 const char* const sys_errlist[] = {
     "out of memory!!!",
@@ -159,13 +159,13 @@ int fprintf(FILE* stream, const char* __restrict format, ...)
 extern void halt(void);
 void panic(const char* s, unsigned int e)
 {
-    vga_writestring("\n\n");
-    vga_writestring(s);
-    vga_writestring(": ");
-    vga_writestring(sys_errlist[e]);
-    vga_putchar(' ');
-    vga_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
-    vga_writestring(" Kernel Panic \n");
+    write((int) stderr, "\n\n", 2);
+    write((int) stderr, s, strlen(s));
+    write((int) stderr, ": ", 2);
+    write((int) stderr, sys_errlist[e], strlen(sys_errlist[e]));
+    putchar(' ');
+    video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
+    write((int) stderr," Kernel Panic \n", 15);
     halt();
 }
 

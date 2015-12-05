@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <vga.h>
+#include <video.h>
 
 #if !defined(__i386__)
 #error "This is for x86 dude, wrong architecture..."
@@ -24,10 +24,10 @@
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     mem_initialize();
-    vga_initialize();
+    video_initialize();
     
     printf("Booting MadOS v0.1\n\n");
-    vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     
     
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
@@ -36,7 +36,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         return;
     }
     
-    printf ("flags = 0b%b\n", (unsigned) mbi->flags);
+    printf("flags = 0b%b\n", (unsigned) mbi->flags);
     
     if(CHECK_FLAG(mbi->flags, 0))
         printf("mem_lower = %uKB, mem_upper = %uKB\n",
@@ -105,11 +105,11 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         free(p);
         if(++counter % 1024 == 0)
         {
-            vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
-            vga_putchar(' ');
+            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
+            putchar(' ');
         }
     }
-    vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     puts("\nIf there was no kernel panic, I'm awesome sauce.\n\nNow lets run out of memory :D");
     while(true) malloc(1024);
 }

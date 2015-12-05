@@ -22,18 +22,14 @@
 #define COLOR_LIGHT_BROWN 14
 #define COLOR_WHITE 15
 
-#define VGA_BUFFER ((uint16_t*) 0xB8000)
-#define VGA_WIDTH 80
-#define VGA_HEIGHT 25
-
 #define MAKE_COLOR(fg, bg) (fg | bg << 4)
 #define MAKE_VGAENTRY(c, color) ((uint16_t) c | (uint16_t) color << 8)
 
-extern void vga_writestring(const char* data);
-extern void vga_setcolor(uint8_t color);
-extern void update_cursor(int x, int y);
-extern void vga_clear(void);
-extern void vga_initialize(void);
-extern void vga_putchar(char c);
+extern void video_writestring(const char* data, size_t size);
+extern void video_setcolor(uint8_t color);
+extern void video_update_cursor(int x, int y);
+extern void video_clear(void);
+extern void video_initialize(void);
+extern void video_putchar(char c);
 
 #endif
