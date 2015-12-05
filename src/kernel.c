@@ -94,8 +94,18 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
-    char* p;
     
-    puts("\nIf you dont see a kernel panic, the memory manager works :D");
-    while(true){p = malloc(1);free(p);}    
+    char* p;
+    unsigned int counter = 0;
+    puts("\nIf you dont see a kernel panic, the memory manager works :D\n\nEvery time we allocate / free 1MB, we will see a period:\n");
+    while(true)
+    {
+        p = malloc(1024);
+        memset(p, 'X', 1024);
+        free(p);
+        if(++counter % 1024 == 0)
+        {
+            vga_putchar('.');
+        }
+    }    
 }

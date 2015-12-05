@@ -27,7 +27,7 @@ void outb(unsigned int port,unsigned char value)
     I may have stone age memory management while I work on other
     things.
 *******************************************************************/
-#define MEM_EARLY_SIZE 1024
+#define MEM_EARLY_SIZE 1024 * 3
 mem_entry_t MEM_FLAT_TABLE[MEM_EARLY_SIZE];
 mem_entry_t* MEM_FLAT_TABLE_TOP = MEM_FLAT_TABLE;
 
