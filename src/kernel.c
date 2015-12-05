@@ -25,32 +25,33 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     mem_initialize();
     vga_initialize();
+    
     printf("Booting MadOS v0.1\n\n");
     vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     
     
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
-        printf("Invalid magic number: 0x%x\n", (unsigned) magic);
+        printf("Invalid boot magic: 0x%x\n", (unsigned) magic);
         return;
     }
     
     printf ("flags = 0b%b\n", (unsigned) mbi->flags);
     
-    if(CHECK_FLAG (mbi->flags, 0))
+    if(CHECK_FLAG(mbi->flags, 0))
         printf("mem_lower = %uKB, mem_upper = %uKB\n",
             (unsigned) mbi->mem_lower, (unsigned) mbi->mem_upper);
      
     // Is boot_device valid? 
-    if(CHECK_FLAG (mbi->flags, 1))
+    if(CHECK_FLAG(mbi->flags, 1))
         printf("boot_device = 0x%x\n", (unsigned) mbi->boot_device);
         
     // Is the command line passed? 
-    if(CHECK_FLAG (mbi->flags, 2))
+    if(CHECK_FLAG(mbi->flags, 2))
         printf("cmdline = %s\n", (char *) mbi->cmdline);
      
     // Are mods_* valid? 
-    if(CHECK_FLAG (mbi->flags, 3))
+    if(CHECK_FLAG(mbi->flags, 3))
     {
         multiboot_module_t *mod;
            
@@ -67,9 +68,9 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
      
     // Bits 4 and 5 are mutually exclusive! 
-    if(CHECK_FLAG (mbi->flags, 4) && CHECK_FLAG (mbi->flags, 5))
+    if(CHECK_FLAG(mbi->flags, 4) && CHECK_FLAG (mbi->flags, 5))
     {
-        printf("Both bits 4 and 5 are set.\n");
+        printf("Both bits 4 and 5 are set. This cannot be!!!\n");
         return;
     }
      
@@ -85,7 +86,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
      
     // Is the section header table of ELF valid? 
-    if(CHECK_FLAG (mbi->flags, 5))
+    if(CHECK_FLAG(mbi->flags, 5))
     {
         multiboot_elf_section_header_table_t *multiboot_elf_sec = &(mbi->u.elf_sec);
         printf("multiboot_elf_sec: num = %u, size = 0x%x,"
@@ -93,33 +94,8 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
+    char* p;
     
-    char* a;
-    extern char MEM_KLUDGE[16384];
-    puts("\nmalloc:");
-    for(int i = 0;i < 80;i++)
-    {
-            a = malloc(1);
-            *a = '0';
-            putchar(*a);
-            free(a);
-    }
-    char* test = malloc(5);
-    strcpy(test, "test");
-    vga_writestring(test);
-    free(test);
-    
-    for(int i = 0;i < 10;i++)
-    {
-            a = malloc(1);
-            *a = 'X';
-            putchar(*a);
-            free(a);
-    }
-    test = malloc(11);
-    strcpy(test, "1234567890");
-    puts("\n\nMEM_KLUDGE[0 - 80]");
-    for(int i = 0;i <= 80;i++)
-        printf("%c", MEM_KLUDGE[i]);
-    
+    puts("\nIf you dont see a kernel panic, the memory manager works :D");
+    while(true){p = malloc(1);free(p);}    
 }
