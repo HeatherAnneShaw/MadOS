@@ -1,6 +1,8 @@
 
 [BITS 32]
 
+jmp _start  ; If we didn't boot from multiboot, just start
+
 MBALIGN     equ  1 << 0                 ; align loaded modules on page boundaries
 MEMINFO     equ  1 << 1                 ; provide memory map
 FLAGS       equ  MBALIGN | MEMINFO      ; this is the Multiboot 'flag' field
