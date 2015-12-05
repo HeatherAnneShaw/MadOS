@@ -4,6 +4,8 @@
 #include <module.h>
 #include <video.h>
 
+#include "./machine.h"
+
 #define video_INIT_MESSAGE "Booting MadOS v0.1\n\n"
 #define video_BUFFER ((uint16_t*) 0xB8000)
 #define video_WIDTH 80

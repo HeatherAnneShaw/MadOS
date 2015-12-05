@@ -8,23 +8,6 @@
 #include <stdlib.h>
 #include <video.h>
 
-#if defined(__i386__)
-
-unsigned char inb(unsigned int port)
-{
-   unsigned char ret;
-   asm volatile ("inb %%dx,%%al":"=a" (ret):"d" (port));
-   return ret;
-}
-
-void outb(unsigned int port,unsigned char value)
-{
-   asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
-}
-#else
-#error "This architecture not currently supported, port this shit lol"
-#endif
-
 ssize_t write(int fildes, const void* buf, size_t nbyte)
 {
     switch(fildes)

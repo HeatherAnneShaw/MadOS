@@ -40,9 +40,6 @@ typedef struct mem_entry{
 #define stdout (FILE*) 1
 #define stderr (FILE*) 2
 
-extern unsigned char inb(unsigned int port);
-extern void outb(unsigned int port,unsigned char value);
-
 extern void* malloc_early(size_t size);
 typedef void* (malloc_t) (size_t);
 malloc_t* malloc;
