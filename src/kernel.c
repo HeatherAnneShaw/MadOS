@@ -20,16 +20,17 @@
 
 extern void (*__init_array_start []) (void);
 extern void (*__init_array_end []) (void);
-
 void __init(void)
 {
-    mem_initialize();
+    mem_initialize();   // initialize stage 1 memory manager
     
     size_t i = __init_array_end - __init_array_start;
     while(i--)
         (*__init_array_start[i])();
 }
 
+extern void (*__fini_array_start []) (void);
+extern void (*__fini_array_end []) (void);
 void __fini(void)
 {
     size_t i = __fini_array_end - __fini_array_start;

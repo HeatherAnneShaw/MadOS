@@ -23,6 +23,7 @@ section .text
 global _start
 global halt
 extern __init
+extern __fini
 extern main
 _start:
     ; Set up the stack
