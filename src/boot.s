@@ -24,16 +24,16 @@ global _start
 global halt
 extern main
 _start:
-	; Set up the stack
+    ; Set up the stack
     mov esp, stack_top     
     ; Push the pointer to the Multiboot information structure.
     push   ebx
     ; Push the magic value. 
     push   eax
-	call main
+    call main
 halt:
     cli
-	hlt
+    hlt
 hang:
-	jmp hang
+    jmp hang
 
