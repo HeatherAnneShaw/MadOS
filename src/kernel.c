@@ -97,15 +97,18 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     
     char* p;
     unsigned int counter = 0;
-    puts("\nIf you dont see a kernel panic, the memory manager works :D\n\nEvery time we allocate / free 1MB, we will see a period:\n");
-    while(true)
+    puts("Allocating / freeing 80MB to test memory manager stability:\n");
+    while(counter < 1024 * 80)
     {
         p = malloc(1024);
         memset(p, 'X', 1024);
         free(p);
         if(++counter % 1024 == 0)
         {
-            vga_putchar('.');
+            vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
+            vga_putchar(' ');
         }
-    }    
+    }
+    vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+    puts("\nIf there was no kernel panic, I'm awesome sauce.");
 }
