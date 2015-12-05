@@ -37,6 +37,6 @@ extern char *gets(char* __s);
 extern char getch(void);
 #define getchar getch
 
-extern void perror(const char *s);
+extern void panic(const char* s, unsigned int e);
 
 #endif

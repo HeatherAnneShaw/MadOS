@@ -23,9 +23,12 @@ void outb(unsigned int port,unsigned char value)
 }
 
 extern void* MEM_KLUDGE;
+extern void* MEM_KLUDGE_END;
 void* malloc(size_t size)
 {
-    return MEM_KLUDGE+size;
+    if(MEM_KLUDGE + size > MEM_KLUDGE_END)
+        panic("malloc", 0);
+    return (MEM_KLUDGE += size);
 }
 
 void free(void* ptr);

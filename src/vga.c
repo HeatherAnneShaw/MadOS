@@ -73,7 +73,7 @@ void vga_putchar(char c)
             ++vga_row;
             break;
         case '\t':
-            vga_column += vga_column % 4;
+            vga_column += ((vga_column + 1) % 4);
             break;
         default:
             vga_putentryat(c, vga_color, vga_column, vga_row);

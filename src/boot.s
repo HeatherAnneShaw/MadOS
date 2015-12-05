@@ -19,13 +19,16 @@ stack_bottom:
 resb 16384
 stack_top:
 
-;; EVIL DISGUSTING TEMPORARY MESS
+;; we can use this until memory management happens
 global MEM_KLUDGE 
+global MEM_KLUDGE_END
 MEM_KLUDGE:
-    resb 10024
+    resb 16384
+MEM_KLUDGE_END:
 
 section .text
 global _start
+global halt
 extern main
 _start:
 	; Set up the stack
@@ -36,6 +39,7 @@ _start:
     push   eax
     ; call main
 	call main
+halt:
     cli
 	hlt
 hang:

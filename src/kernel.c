@@ -112,5 +112,5 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
     */
     /// MAGIC STARTS HERE
-    
+    while(true) malloc(1);
 }

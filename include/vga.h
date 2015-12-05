@@ -34,5 +34,6 @@ extern void vga_setcolor(uint8_t color);
 extern void update_cursor(int x, int y);
 extern void vga_clear(void);
 extern void vga_initialize(void);
+extern void vga_putchar(char c);
 
 #endif
