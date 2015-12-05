@@ -23,7 +23,7 @@
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     vga_initialize();
-	printf("Booting MadOS v0.1\n\n");
+    printf("Booting MadOS v0.1\n\n");
     vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
