@@ -110,5 +110,6 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
     vga_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
-    puts("\nIf there was no kernel panic, I'm awesome sauce.");
+    puts("\nIf there was no kernel panic, I'm awesome sauce.\n\nNow lets run out of memory :D");
+    while(true) malloc(1024);
 }
