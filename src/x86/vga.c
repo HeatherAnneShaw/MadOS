@@ -17,8 +17,8 @@ uint8_t video_color;
 
 void __attribute__((constructor)) video_initialize()
 {
-	video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_BLACK));
-	video_clear();
+    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_BLACK));
+    video_clear();
     
     video_writestring(video_INIT_MESSAGE, strlen(video_INIT_MESSAGE));
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
@@ -30,10 +30,10 @@ void video_clear(void)
     {
         for(size_t x = 0; x < video_WIDTH; x++)
         {
-			const size_t index = y * video_WIDTH + x;
-			video_BUFFER[index] = MAKE_VGAENTRY(' ', video_color);
-		}
-	}
+            const size_t index = y * video_WIDTH + x;
+            video_BUFFER[index] = MAKE_VGAENTRY(' ', video_color);
+        }
+    }
     video_update_cursor(0, 0);
 }
 
@@ -50,7 +50,7 @@ void video_update_cursor(int x, int y)
  
 void video_setcolor(uint8_t color)
 {
-	video_color = color;
+    video_color = color;
 }
  
 void video_putentryat(char c, uint8_t color, size_t x, size_t y)
