@@ -1,7 +1,4 @@
-
 [BITS 32]
-
-jmp _start  ; If we didn't boot from multiboot, just start
 
 MBALIGN     equ  1 << 0                 ; align loaded modules on page boundaries
 MEMINFO     equ  1 << 1                 ; provide memory map
@@ -10,6 +7,7 @@ MAGIC       equ  0x1BADB002             ; 'magic number' lets bootloader find th
 CHECKSUM    equ -(MAGIC + FLAGS)        ; checksum of above, to prove we are multiboot
 
 section .multiboot
+jmp _start  ; If we didn't boot from multiboot, just start
 align 4
 dd MAGIC
 dd FLAGS
