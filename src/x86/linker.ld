@@ -43,9 +43,8 @@ SECTIONS
     {
         *(COMMON)
         *(.bss)
-        *(.bootstrap_stack)
     }
-
-    /* The compiler may produce other sections, by default it will put them in
-       a segment with the same name. Simply add stuff here as needed. */
+    STACK_BASE = .;
+    . += 0x10000;
+    STACK_TOP = .;
 }

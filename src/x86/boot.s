@@ -12,21 +12,16 @@ dd MAGIC
 dd FLAGS
 dd CHECKSUM
 
-section .bootstrap_stack, nobits
-align 4
-stack_bottom:
-resb 16384
-stack_top:
-
 section .text
 global _start
 global halt
 extern __init
 extern __fini
 extern main
+extern STACK_TOP
 _start:
     ; Set up the stack
-    mov esp, stack_top
+    mov esp, STACK_TOP
     ; Push the pointer to the Multiboot information structure.
     push   ebx
     ; Push the magic value. 
@@ -40,21 +35,6 @@ halt:
 hang:
     jmp hang
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-global set_gdt
-global reload_segments
-
-gdtr DW 0 ; For limit storage
-     DD 0 ; For base storage
-
-set_gdt:
-    cli
-    MOV   EAX, [esp + 4]
-    MOV   [gdtr + 2], EAX
-    MOV   AX, [ESP + 8]
-    MOV   [gdtr], AX
-    LGDT  [gdtr]
-    RET
 
 
 
