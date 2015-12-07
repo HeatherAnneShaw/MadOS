@@ -29,10 +29,6 @@ SECTIONS {
     {
         *(.bss COMMON)
     }
-    .rel.plt :
-    {
-        *(.rel.plt)
-    }
     STACK_BASE = .;
     . += 0x10000;
     STACK_TOP = .;
