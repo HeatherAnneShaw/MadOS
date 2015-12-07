@@ -113,9 +113,15 @@ void video_setcolor(uint8_t color)
     video_writestring(color_table[color & 0xF], strlen(color_table[color & 0xF]));
 }
 
+void video_update_cursor(int x, int y)
+{
+    CURSOR(x, y);
+}
+
 void video_clear(void)
 {
-    video_writestring(CLEAR, strlen(CLEAR);
+    video_update_cursor(0, 0);
+    video_writestring(CLEAR, strlen(CLEAR));
 }
 
 #define UART0_BASE 0x1c090000
