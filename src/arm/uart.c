@@ -101,6 +101,7 @@ char* color_table[] = {
 #define video_INIT_MESSAGE "\nBooting MadOS v0.1\n\n"
 void __attribute__((constructor)) video_initialize()
 {
+    video_clear();
     video_writestring(GREEN, strlen(GREEN));
     video_writestring(video_INIT_MESSAGE, strlen(video_INIT_MESSAGE));
     video_writestring(RESET, strlen(RESET));
@@ -110,6 +111,11 @@ void video_setcolor(uint8_t color)
 {
     video_writestring(color_table[(color >> 4) + 16], strlen(color_table[(color >> 4) + 16]));
     video_writestring(color_table[color & 0xF], strlen(color_table[color & 0xF]));
+}
+
+void video_clear(void)
+{
+    video_writestring(CLEAR, strlen(CLEAR);
 }
 
 #define UART0_BASE 0x1c090000
