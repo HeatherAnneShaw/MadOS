@@ -41,26 +41,6 @@
 #define ICYAN		"\033[096m"
 #define IWHITE		"\033[097m"
 
-// Bold High Intensity
-#define BIBLACK		"\033[190m"
-#define BIRED		"\033[191m"
-#define BIGREEN		"\033[192m"
-#define BIYELLOW	"\033[193m"
-#define BIBLUE		"\033[194m"
-#define BIPURPLE	"\033[195m"
-#define BICYAN		"\033[196m"
-#define BIWHITE		"\033[197m"
-
-// Underline
-#define UBLACK		"\033[430m"
-#define URED		"\033[431m"
-#define UGREEN		"\033[432m"
-#define UYELLOW		"\033[433m"
-#define UBLUE		"\033[434m"
-#define UPURPLE		"\033[435m"
-#define UCYAN		"\033[436m"
-#define UWHITE		"\033[437m"
-
 ///////////////////////////////////
 
 // Background

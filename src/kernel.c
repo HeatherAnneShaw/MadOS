@@ -43,7 +43,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
-        printf("This is not multiboot, now we need to do everything ourselves...\n", (unsigned) magic);
+        printf("This is not multiboot, time for a good probing...\n\n", (unsigned) magic);
         goto skip_multiboot;
     }
     
