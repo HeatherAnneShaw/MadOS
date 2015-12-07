@@ -72,7 +72,7 @@ void video_scroll(void)
     video_column = 0;
 }
 
-void video_putchar(char c)
+void video_putchar(uint8_t c)
 {
     switch(c)
     {

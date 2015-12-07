@@ -20,10 +20,11 @@
 
 extern void (*__init_array_start []) (void);
 extern void (*__init_array_end []) (void);
+
 void __init(void)
 {
     mem_initialize();   // initialize stage 1 memory manager
-    
+
     size_t i = __init_array_end - __init_array_start;
     while(i--)
         (*__init_array_start[i])();
@@ -42,8 +43,8 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
-        printf("Invalid boot magic: 0x%x\n", (unsigned) magic);
-        return;
+        printf("This is not multiboot, now we need to do everything ourselves...\n", (unsigned) magic);
+        goto skip_multiboot;
     }
     
     printf("flags = 0b%b\n", (unsigned) mbi->flags);
@@ -83,7 +84,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         printf("Both bits 4 and 5 are set. This cannot be!!!\n");
         return;
     }
-     
+    
     // Is the symbol table of a.out valid? 
     if(CHECK_FLAG (mbi->flags, 4))
     {
@@ -104,7 +105,9 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
-    
+
+skip_multiboot:
+({
     char* p;
     unsigned int counter = 0;
     puts("Allocating / freeing 80MB to test memory manager stability:\n");
@@ -116,10 +119,11 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         if(++counter % 1024 == 0)
         {
             video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
-            putchar(' ');
+            putchar('.');
         }
     }
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     puts("\nIf there was no kernel panic, I'm awesome sauce.\n\nNow lets run out of memory :D");
     while(true) malloc(1024);
+});
 }

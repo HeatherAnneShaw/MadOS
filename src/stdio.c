@@ -165,7 +165,8 @@ void panic(const char* s, unsigned int e)
     write((int) stderr, sys_errlist[e], strlen(sys_errlist[e]));
     putchar(' ');
     video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
-    write((int) stderr," Kernel Panic \n", 15);
+    write((int) stderr," Kernel Panic ", 15);
+    video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_BLACK));
     halt();
 }
 
