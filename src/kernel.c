@@ -18,6 +18,23 @@
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+#if defined(__i386__)
+
+extern void gdt_install();
+extern void idt_install();
+extern void isrs_install();
+extern void irq_install();
+
+void __attribute__((constructor)) handler_initialize(void)
+{
+    gdt_install();
+    idt_install();
+    isrs_install();
+    irq_install();
+}
+
+#endif
+
 extern void (*__init_array_start []) (void);
 extern void (*__init_array_end []) (void);
 
@@ -105,9 +122,8 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
-
-skip_multiboot:
-({
+skip_multiboot: ({}); // labels must be part of a statement
+    
     char* p;
     unsigned int counter = 0;
     puts("Allocating / freeing 80MB to test memory manager stability:\n");
@@ -122,8 +138,9 @@ skip_multiboot:
             putchar('.');
         }
     }
+    
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
-    puts("\nIf there was no kernel panic, I'm awesome sauce.\n\nNow lets run out of memory :D");
-    while(true) malloc(1024);
-});
+    putch('\n');
+
+    while(getch != NULL)putch(getch());
 }

@@ -4,7 +4,7 @@
 #include <module.h>
 #include <video.h>
 
-#include "./machine.h"
+#include <machine.h>
 
 #define video_INIT_MESSAGE "Booting MadOS v0.1\n\n"
 #define video_BUFFER ((uint16_t*) 0xB8000)
@@ -85,6 +85,12 @@ void video_putchar(uint8_t c)
             break;
         case '\t':
             video_column += ((video_column + 1) % 4);
+            break;
+        case '\b':
+            if(video_column == 0)
+                return;
+            else
+                video_putentryat(0, video_color, (video_column--)-1, video_row);
             break;
         default:
             video_putentryat(c, video_color, video_column, video_row);

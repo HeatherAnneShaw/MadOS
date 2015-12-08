@@ -13,9 +13,12 @@
 
 const char* const sys_errlist[] = {
     "out of memory!!!",
+    "bad limit...",
     NULL
 };
 
+
+unsigned char (*getch) (void);
 
 int fputch(FILE* stream, char c)
 {
@@ -167,7 +170,6 @@ void panic(const char* s, unsigned int e)
     video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
     write((int) stderr," Kernel Panic ", 15);
     video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_BLACK));
-    halt();
 }
 
 

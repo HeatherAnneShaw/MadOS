@@ -24,6 +24,7 @@ char MEM_KLUDGE[MEM_EARLY_SIZE];
 char* MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
 char* MEM_PTR = MEM_KLUDGE;
 
+extern void halt(void);
 void mem_initialize(void)
 {
     for(unsigned i = 0;i < MEM_EARLY_SIZE;i++)
@@ -39,7 +40,10 @@ void* malloc_early(size_t size)
 {
     MEM_PTR += size;
     if(MEM_PTR >= MEM_KLUDGE_END)
+    {
         panic("malloc", 0);
+        halt();
+    }
     
     MEM_FLAT_TABLE_TOP->ptr = MEM_PTR - size;
     MEM_FLAT_TABLE_TOP->size = size;

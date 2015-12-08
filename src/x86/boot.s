@@ -26,16 +26,16 @@ _start:
     push   ebx
     ; Push the magic value. 
     push   eax
-    
     call __init
+    sti
     call main
+    jmp hang
 halt:
     call __fini
+    cli
     hlt
 hang:
     jmp hang
-
-
 
 
 
