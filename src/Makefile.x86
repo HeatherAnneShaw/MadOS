@@ -1,6 +1,6 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ    = kernel boot.o tables.o gdt.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o madstd.o stdlib.o string.o stdio.o kernel.o
+OBJ	= kernel boot.o tables.o gdt.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o madstd.o stdlib.o string.o stdio.o kernel.o
 
 all:
 	# libk
@@ -11,16 +11,18 @@ all:
 	
 	# kernel
 	nasm -f elf32 x86/boot.s -o boot.o
+	
+	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
 	gcc $(CFLAGS) -c x86/port.c -o port.o
 	gcc $(CFLAGS) -c x86/vga.c -o video.o
 	gcc $(CFLAGS) -c x86/keyboard.c -o keyboard.o
+	gcc $(CFLAGS) -c x86/timer.c -o timer.o
+	
 	gcc $(CFLAGS) -c x86/gdt.c -o gdt.o
 	gcc $(CFLAGS) -c x86/idt.c -o idt.o
 	gcc $(CFLAGS) -c x86/isr.c -o isr.o
 	gcc $(CFLAGS) -c x86/irq.c -o irq.o
-	gcc $(CFLAGS) -c x86/keyboard.c -o keyboard.o
-	gcc $(CFLAGS) -c x86/timer.c -o timer.o
 	gcc $(CFLAGS) -c kernel.c -o kernel.o
 	
 	# link it on up

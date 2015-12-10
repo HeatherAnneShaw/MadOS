@@ -11,8 +11,11 @@ all:
 	$(CC) $(CFLAGS) -c madstd.c -o madstd.o
 	$(CC) $(CFLAGS) -c stdio.c -o stdio.o
 
+	# kernel
 	$(AS) -march=armv7-a -mcpu=cortex-a15 arm/boot.s -o boot.o
 	$(CC) $(CFLAGS) -c kernel.c -o kernel.o
+
+	# drivers
 	$(CC) $(CFLAGS) -c arm/uart.c -o video.o
 	$(CC) -lgcc $(CFLAGS) -T arm/linker.ld -o $(OBJ)
 
