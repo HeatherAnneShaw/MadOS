@@ -56,6 +56,29 @@ void __fini(void)
         (*__fini_array_start[i])();
 }
 
+void debug_shell(void)
+{
+    cursor_pos_t pos;
+    
+    printf("\nMadOS> ");
+    while(getch != NULL)
+    {
+        char c = getch();
+        putch(c);
+        switch(c)
+        {
+            case '\b':
+                video_cursor_pos(&pos);
+                if(pos.x < 7)
+                {
+                    video_update_cursor(7, pos.y);
+                    break;
+                }
+                write((int)stdout, " \b", 2);
+                break;
+        }
+    }
+}
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
@@ -142,15 +165,5 @@ skip_multiboot: ({}); // labels must be part of a statement
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     putch('\n');
 
-    while(getch != NULL)
-    {
-        char c = getch();
-        putch(c);
-        switch(c)
-        {
-            case '\b':
-                write((int)stdout, " \b", 2);
-                break;
-        }
-    }
+    debug_shell();
 }

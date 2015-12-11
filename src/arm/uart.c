@@ -6,6 +6,9 @@
 
 #include "./machine.h"
 
+#define video_WIDTH 80
+#define video_HEIGHT 25
+
 // Hide cursor
 #define HIDE_CURSOR     "\033[?25l"
 
@@ -13,7 +16,7 @@
 #define SHOW_CURSOR     "\033[?25h"
 
 // Cursor position
-#define CURSOR(x, y) printf("\033[%i;%iH\n", y, x)
+#define CURSOR(x, y) printf("\033[%i;%iH", y, x)
 
 // Clear
 #define CLEAR           "\033[2J"
@@ -138,6 +141,9 @@ enum
     UART0_TDR    = (UART0_BASE + 0x8C),
 };
 
+size_t video_row = 0;
+size_t video_column = 0;
+
 /* Loop <delay> times in a way that the compiler won't optimize away. */
 static inline void delay(int32_t count)
 {
@@ -218,6 +224,14 @@ void video_setcolor(uint8_t color)
 void video_update_cursor(int x, int y)
 {
     CURSOR(x, y);
+    video_column = x;
+    video_row = y;
+}
+
+void video_cursor_pos(cursor_pos_t* st)
+{
+    st->x = video_column;
+    st->y = video_row;
 }
 
 void video_clear(void)
@@ -228,9 +242,41 @@ void video_clear(void)
 
 void video_putchar(uint8_t c)
 {
+    switch(c)
+    {
+        case '\r':
+            video_column = 0;
+            break;
+        case '\n':
+            video_column = 0;
+            ++video_row;
+            break;
+        case '\t':
+            video_column += ((video_column + 1) % 4);
+            break;
+        case '\b':
+            if(video_column == 0)
+                break;
+            else
+                video_column--;
+            break;
+        default:
+            video_column++;
+            break;
+    }
+    if(video_column >= video_WIDTH)
+    {
+        video_column = 0;
+        ++video_row;
+    }
+    if(video_row >= video_HEIGHT)
+    {
+        video_row = video_HEIGHT - 1;
+        video_column = 0;
+    }
     // Wait for UART to become ready to transmit.
-	while ( mmio_read(UART0_FR) & (1 << 5) ) { }
-	mmio_write(UART0_DR, c);
+    while ( mmio_read(UART0_FR) & (1 << 5) ) { }
+    mmio_write(UART0_DR, c);
 }
 
 unsigned char uart_getchar()
