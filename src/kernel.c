@@ -142,5 +142,15 @@ skip_multiboot: ({}); // labels must be part of a statement
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     putch('\n');
 
-    while(getch != NULL)putch(getch());
+    while(getch != NULL)
+    {
+        char c = getch();
+        putch(c);
+        switch(c)
+        {
+            case '\b':
+                write((int)stdout, " \b", 2);
+                break;
+        }
+    }
 }

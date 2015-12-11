@@ -17,6 +17,8 @@ all:
 
 	# drivers
 	$(CC) $(CFLAGS) -c arm/uart.c -o video.o
+
+	# link it all
 	$(CC) -lgcc $(CFLAGS) -T arm/linker.ld -o $(OBJ)
 
 test:
