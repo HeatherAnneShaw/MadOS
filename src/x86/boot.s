@@ -29,14 +29,15 @@ _start:
     call __init
     sti
     call main
+    call __fini
     jmp hang
 halt:
-    call __fini
     cli
     hlt
 hang:
     jmp hang
-
+string:
+    db "woot", 0xa
 
 
 

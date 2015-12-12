@@ -1,18 +1,47 @@
 [BITS 32]
 
+section .bss
+align 4096
+global page_table
+global page_directory
+page_table: resb (1024 * 4 * 1024)	; Reserve uninitialised space for Page Table -  # of entries/page table * 4 bytes/entry * total # of page tables 
+											; actual size = 4194304 bytes = 4MiB, represents 4GiB in physical memory
+											; ie. each 4 byte entry represent 4 KiB in physical memory
+page_directory: resb (1024 * 4 * 1) ; Reserve uninitialised space for Page Directory - # of pages tables * 4 bytes/entry * # of directory (4096 = 4 KiB)
+
+section .text
+
 global gdt_flush     ; Allows the C code to link to this
-extern gdt_p            ; Says that '_gp' is in another file
-gdt_flush:
-    lgdt [gdt_p]        ; Load the GDT with our '_gp' which is a special pointer
-    mov ax, 0x10      ; 0x10 is the offset in the GDT to our data segment
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    jmp 0x08:flush2   ; 0x08 is the offset to our code segment: Far jump!
-flush2:
-    ret               ; Returns back to the C code!
+gdt:
+db 0, 0, 0, 0, 0, 0, 0, 0			; Offset: 0  - Null selector - required 
+db 255, 255, 0, 0, 0, 0x9A, 0xCF, 0	; Offset: 8  - KM Code selector - covers the entire 4GiB address range
+db 255, 255, 0, 0, 0, 0x92, 0xCF, 0	; Offset: 16 - KM Data selector - covers the entire 4GiB address range
+db 255, 255, 0, 0, 0, 0xFA, 0xCF, 0	; Offset: 24 - UM Code selector - covers the entire 4GiB address range
+db 255, 255, 0, 0, 0, 0xF2, 0xCF, 0	; Offset: 32 - UM Data selector - covers the entire 4GiB address range
+;					   Size - Change iff adding/removing rows from GDT contents
+;					   Size = Total bytes in GDT - 1
+gdt_p db 39, 0, 0, 0, 0, 0
+
+global gdt_install
+gdt_install:
+	; BEGIN - Tell CPU about GDT
+	mov dword [gdt_p + 2], gdt
+	mov dword EAX, gdt_p
+	lgdt [EAX]
+	
+	; Set data segments
+	mov dword EAX, 0x10
+	mov word DS, EAX
+	mov word ES, EAX
+	mov word FS, EAX
+	mov word GS, EAX
+	mov word SS, EAX
+	
+	; Force reload of code segment
+	jmp 8:flush
+flush:
+	; END - Tell CPU about GDT
+    ret
 
 ; Loads the IDT defined in '_idtp' into the processor.
 ; This is declared in C as 'extern void idt_load();'

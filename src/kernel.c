@@ -123,6 +123,25 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
+    // Are mmap_* valid?
+    if (CHECK_FLAG (mbi->flags, 6))
+    {
+        multiboot_memory_map_t* mmap;
+        printf ("mmap_addr = 0x%x, mmap_length = 0x%x\n",
+            (unsigned) mbi->mmap_addr, (unsigned) mbi->mmap_length);
+        for (mmap = (multiboot_memory_map_t *) mbi->mmap_addr;
+            (unsigned long) mmap < mbi->mmap_addr + mbi->mmap_length;
+                mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+                    + mmap->size + sizeof (mmap->size)))
+        printf (" size = 0x%x, base_addr = 0x%x%x,"
+            " length = 0x%x%x, type = 0x%x\n",
+            (unsigned) mmap->size,
+            mmap->addr >> 32,
+            mmap->addr & 0xffffffff,
+            mmap->len >> 32,
+            mmap->len & 0xffffffff,
+            (unsigned) mmap->type);
+    }
 skip_multiboot: ({}); // labels must be part of a statement
     
     char* p;

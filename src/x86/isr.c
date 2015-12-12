@@ -36,6 +36,7 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+extern void isr128();
 
 
 void isrs_install()
@@ -119,7 +120,23 @@ char *exception_messages[] =
 extern void halt(void);
 void fault_handler(struct regs *r)
 {
-    if (r->int_no < 32)
+    if(r->int_no == 31)
+    {
+        // syscalls
+        switch(r->eax)
+        {
+            case 0x03:
+                read(r->ebx, (void*) r->ecx, r->edx);
+                break;
+            case 0x04:
+                write(r->ebx, (const void*) r->ecx, r->edx);
+                break;
+            default:
+                puts("Invalid systemcall");
+                break;
+        }
+    }
+    else if (r->int_no < 32)
     {
         puts(exception_messages[r->int_no]);
         puts(" Exception. System Halted!\n");

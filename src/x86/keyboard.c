@@ -16,11 +16,12 @@ unsigned char kbdus[128] =
     0,   0,   0, 0, /* F11 Key */ 0, /* F12 Key */ 0, /* All other keys are undefined */
 };
 
+
+volatile unsigned char character;
 /* Handles the keyboard interrupt */
 void keyboard_handler(struct regs *r)
 {
     unsigned char scancode;
-
     /* Read from the keyboard's data buffer */
     scancode = inb(0x60);
 
@@ -35,7 +36,8 @@ void keyboard_handler(struct regs *r)
     {
         if(kbdus[scancode] != 0)
         {
-            putch(kbdus[scancode]);
+            //putch(kbdus[scancode]);
+            character = kbdus[scancode];
             return;
         }
         switch(scancode)
@@ -46,9 +48,18 @@ void keyboard_handler(struct regs *r)
     }
 }
 
+unsigned char keyboard_getch(void)
+{
+    character = 0;
+    irq_install_handler(1, keyboard_handler);
+    while(character == 0);
+    irq_uninstall_handler(1);
+    return character;
+}
+
 extern void irq_install_handler(int irq, void (*handler)(struct regs *r));
-/* Installs the keyboard handler into IRQ1 */
+extern unsigned char (*getch) (void);
 void __attribute__((constructor)) keyboard_install()
 {
-    irq_install_handler(1, keyboard_handler);
+    getch = keyboard_getch;
 }

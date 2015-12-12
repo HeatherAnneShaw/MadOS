@@ -65,7 +65,12 @@ void debug_command(char* command_string)
         }
         printf("%s: command not found\n", commandv[0]);
 }
+
+#if defined(__arm__)
 #define PROMPT "\033[092m(\033[037mMadOS\033[092m)\033[0m "
+#else
+#define PROMPT "(MadOS) "
+#endif
 void __attribute__((destructor)) debug_shell(void)
 {
     cursor_pos_t pos;
