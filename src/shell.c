@@ -15,16 +15,14 @@ typedef struct command_t {
     command_fun_ptr function;
 } command_t;
 
-void command_clear(char** command)
+void command_clear(void)
 {
-    command+=1;
     video_clear();
     putch('\n');
 }
 extern void halt(void);
-void command_exit(char** command)
+void command_exit(void)
 {
-    command+=1;
     printf("< shell terminated >\n");
     halt();
 }
@@ -33,9 +31,9 @@ void command_exit(char** command)
 command_t command_list[command_list_size];
 void __attribute__((constructor)) debug_shell_init(void)
 {
-    command_list[0] = (command_t) {"clear", command_clear};
-    command_list[1] = (command_t) {"exit", command_exit};
-    command_list[2] = (command_t) {"halt", command_exit};
+    command_list[0] = (command_t) {"clear", (void*) command_clear};
+    command_list[1] = (command_t) {"exit", (void*) command_exit};
+    command_list[2] = (command_t) {"halt", (void*) command_exit};
 }
 
 void debug_command(char* command_string)
