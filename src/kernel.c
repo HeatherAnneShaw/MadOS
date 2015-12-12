@@ -145,6 +145,7 @@ void debug_shell(void)
                 strcat(command_string, (char[]){c, 0});
         }
     }
+    printf("We don't have a full getch keyboard driver for this architecture yet...");
 }
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
