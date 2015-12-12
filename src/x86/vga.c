@@ -8,9 +8,8 @@
 
 #define video_INIT_MESSAGE "Booting MadOS v0.1\n\n"
 #define video_BUFFER ((uint16_t*) 0xB8000)
-#define video_WIDTH 90
-#define video_HEIGHT 60
-
+size_t video_WIDTH = 80;
+size_t video_HEIGHT = 25;
 size_t video_row = 0;
 size_t video_column = 0;
 uint8_t video_color;
@@ -58,9 +57,9 @@ void video_putentryat(char c, uint8_t color, size_t x, size_t y)
  
 void video_scroll(void)
 {
-    for(int y = 0;y < video_HEIGHT;y++)
+    for(size_t y = 0;y < video_HEIGHT;y++)
     {
-        for(int x = 0;x < video_WIDTH;x++)
+        for(size_t x = 0;x < video_WIDTH;x++)
         {
             video_BUFFER[y * video_WIDTH + x] = video_BUFFER[(y + 1) * video_WIDTH + x];
         }
@@ -1229,20 +1228,20 @@ SET TEXT MODES
 *****************************************************************************/
 void set_text_mode(int hi_res)
 {
-	unsigned rows, cols, ht, i;
+	unsigned ht, i;
 
 	if(hi_res)
 	{
 		write_regs(g_90x60_text);
-		cols = 90;
-		rows = 60;
+		video_WIDTH = 90;
+        video_HEIGHT = 60;
 		ht = 8;
 	}
 	else
 	{
 		write_regs(g_80x25_text);
-		cols = 80;
-		rows = 25;
+		video_WIDTH = 80;
+        video_HEIGHT = 25;
 		ht = 16;
 	}
 /* set font */
@@ -1251,15 +1250,15 @@ void set_text_mode(int hi_res)
 	else
 		write_font(g_8x8_font, 8);
 /* tell the BIOS what we've done, so BIOS text output works OK */
-	pokew(0x40, 0x4A, cols);	/* columns on screen */
-	pokew(0x40, 0x4C, cols * rows * 2); /* framebuffer size */
+	pokew(0x40, 0x4A, video_WIDTH);	/* columns on screen */
+	pokew(0x40, 0x4C, video_WIDTH * video_HEIGHT * 2); /* framebuffer size */
 	pokew(0x40, 0x50, 0);		/* cursor pos'n */
 	pokeb(0x40, 0x60, ht - 1);	/* cursor shape */
 	pokeb(0x40, 0x61, ht - 2);
-	pokeb(0x40, 0x84, rows - 1);	/* rows on screen - 1 */
+	pokeb(0x40, 0x84, video_HEIGHT - 1);	/* rows on screen - 1 */
 	pokeb(0x40, 0x85, ht);		/* char height */
 /* set white-on-black attributes for all text */
-	for(i = 0; i < cols * rows; i++)
+	for(i = 0; i < video_WIDTH * video_HEIGHT; i++)
 		pokeb(0xB800, i * 2 + 1, 7);
 }
 /*****************************************************************************
