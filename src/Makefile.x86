@@ -1,6 +1,6 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ	= kernel boot.o shell.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o madstd.o stdlib.o string.o stdio.o kernel.o
+OBJ	= kernel boot.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o shell.o port.o madstd.o stdlib.o string.o stdio.o kernel.o
 
 all:
 	# libk
@@ -29,7 +29,7 @@ all:
 	gcc $(CFLAGS) -c shell.c -o shell.o
 
 	# link it on up
-	gcc -T x86/linker.ld $(CFLAGS) -o $(OBJ)
+	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ)
 
 test:
 	qemu-system-i386 -kernel kernel -append debug

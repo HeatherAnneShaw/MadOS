@@ -146,7 +146,7 @@ skip_multiboot: ({}); // labels must be part of a statement
     
     char* p;
     unsigned int counter = 0;
-    puts("Allocating / freeing 80MB to test memory manager stability:\n");
+    puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
     while(counter < 1024 * 80)
     {
         p = malloc(1024);
@@ -160,5 +160,5 @@ skip_multiboot: ({}); // labels must be part of a statement
     }
     
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
-    putch('\n');
+    puts("\n");
 }

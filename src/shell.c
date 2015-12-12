@@ -27,102 +27,13 @@ void command_exit(void)
     halt();
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-
-int grid_check_neighbors(bool* grid, int width, int height, int x, int y)
-{
-#define SIZE (width * height)
-#define STATE(x, y, limit_comp) (int) (((x) * width + (y)) limit_comp ? grid[(x) * width + (y)] : false)
-    return STATE(x-1, y-1,>=0) + STATE(x-1,y,>=0) + STATE(x-1,y+1,>=0) + STATE(x,y-1,>=0) +
-        STATE(x,y+1,<SIZE) + STATE(x+1,y-1,<SIZE) + STATE(x+1,y,<SIZE) + STATE(x+1,y+1,<SIZE);
-}
-
-
-void grid_step(bool* grid, int width, int height)
-{
-#define SIZE (width * height)
-    bool t[SIZE];
-    memcpy(t, grid, SIZE*sizeof(bool));
-    for(int i = 0, n = 0;i < SIZE;i++)
-    {
-        n = grid_check_neighbors(grid, width, height, i / width, i % width);
-        if(!grid[i] && n == 3)
-                t[i] = true;
-        else if(n < 2 || n > 3)
-                t[i] = false;
-    }
-    memcpy(grid, t, SIZE*sizeof(bool));
-}
-
-void command_bored(void)
-{
-    #define SIZE (width * height)
-    const int width = 25,
-        height = 25;
-    int frames = 560;
-    
-    bool grid[] = {
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-        0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    };
-    
-    video_clear();
-    for(int i = 0;i < frames;i++)
-    {
-        video_update_cursor(0,0);
-        for(int c = 0;c < SIZE;c++)
-        {
-            printf("  ");
-            if(grid[c])
-            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_RED));
-            else if(c % 2)
-                video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
-            else
-                video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_WHITE));
-            if((c + 1) % width == 0)
-            {
-                video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
-                puts("");
-            }
-        }
-        grid_step(grid, width, height);
-        //usleep(1000*100);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-
-#define command_list_size 4
+#define command_list_size 3
 command_t command_list[command_list_size];
 void __attribute__((constructor)) debug_shell_init(void)
 {
     command_list[0] = (command_t) {"clear", (void*) command_clear};
     command_list[1] = (command_t) {"exit", (void*) command_exit};
     command_list[2] = (command_t) {"halt", (void*) command_exit};
-    command_list[2] = (command_t) {"B==D", (void*) command_bored};
 }
 
 void debug_command(char* command_string)
@@ -163,7 +74,7 @@ void __attribute__((destructor)) debug_shell(void)
     cursor_pos_t pos;
     char command_string[MAX_COMMAND_LINE_LENGTH] = "";
     printf("\n" PROMPT);
-    
+    video_cursor_pos(&pos);
     while(getch != NULL)
     {
         char c = getch();
