@@ -16,7 +16,7 @@
 #define SHOW_CURSOR     "\033[?25h"
 
 // Cursor position
-#define CURSOR(x, y) printf("\033[%i;%iH", y, x)
+#define CURSOR(x, y) printf("\033[%i;%if", y, x)
 
 // Clear
 #define CLEAR           "\033[2J"
@@ -223,6 +223,7 @@ void video_setcolor(uint8_t color)
 
 void video_update_cursor(int x, int y)
 {
+    x++, y++;
     CURSOR(x, y);
     video_column = x;
     video_row = y;
