@@ -2,6 +2,7 @@
 #include <video.h>
 #include <stdio.h>
 #include <string.h>
+#include <madmath.h>
 
 typedef void (*command_fun_ptr) (char**);
 
@@ -67,10 +68,10 @@ void __attribute__((destructor)) debug_shell(void)
     while(getch != NULL)
     {
         char c = getch();
-        putch(c);
         switch(c)
         {
             case '\b':
+                putch(c);
                 video_cursor_pos(&pos);
                 if(pos.x < 7)
                 {
@@ -83,12 +84,28 @@ void __attribute__((destructor)) debug_shell(void)
                 }
                 write((int)stdout, " \b", 2);
                 break;
+            case 0x03: // CTRL + c
+                write((int) stdout, "^C", 3);
             case '\n':
-                debug_command(command_string);
+                putch('\n');
+                if(c == '\n')
+                    debug_command(command_string);
                 printf("MadOS> ");
                 command_string[0] = 0;
                 break;
+            case 0x1b:
+                c = getch();
+                if(c == 0x5b)
+                /* arrow keys here
+                    U = A
+                    D = B
+                    R = C
+                    L = D
+                */
+                    c = getch();
+                    break;
             default:
+                putch(c);
                 strcat(command_string, (char[]){c, 0});
         }
     }
