@@ -2,7 +2,7 @@ CC = arm-linux-gnueabi-gcc
 AS = arm-linux-gnueabi-as
 LD = arm-linux-gnueabi-ld
 CFLAGS  = -static -nostartfiles -std=gnu99 -ffreestanding -Wall -Wextra -Werror -I../include -I./arm
-OBJ	 = kernel boot.o kernel.o video.o madstd.o stdlib.o string.o stdio.o
+OBJ	 = kernel boot.o kernel.o shell.o video.o madstd.o stdlib.o string.o stdio.o
 
 all:
 	# libk
@@ -17,6 +17,9 @@ all:
 
 	# drivers
 	$(CC) $(CFLAGS) -c arm/uart.c -o video.o
+
+	# extra's
+	$(CC) $(CFLAGS) -c shell.c -o shell.o
 
 	# link it all
 	$(CC) -lgcc $(CFLAGS) -T arm/linker.ld -o $(OBJ)
