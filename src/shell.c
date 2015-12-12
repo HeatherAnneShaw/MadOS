@@ -59,12 +59,12 @@ void debug_command(char* command_string)
         }
         printf("%s: command not found\n", commandv[0]);
 }
-
+#define PROMPT "\033[092m(\033[037mMadOS\033[092m)\033[0m "
 void __attribute__((destructor)) debug_shell(void)
 {
     cursor_pos_t pos;
     char command_string[512] = "";
-    printf("\nMadOS> ");
+    printf("\n" PROMPT);
     while(getch != NULL)
     {
         char c = getch();
@@ -73,7 +73,7 @@ void __attribute__((destructor)) debug_shell(void)
             case '\b':
                 putch(c);
                 video_cursor_pos(&pos);
-                if(pos.x < 7)
+                if(pos.x < (int) strlen(PROMPT))
                 {
                     putch(' ');
                     break;
@@ -90,7 +90,7 @@ void __attribute__((destructor)) debug_shell(void)
                 putch('\n');
                 if(c == '\n')
                     debug_command(command_string);
-                printf("MadOS> ");
+                printf(PROMPT);
                 command_string[0] = 0;
                 break;
             case 0x1b:
