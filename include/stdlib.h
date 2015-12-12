@@ -13,13 +13,14 @@
 #include <stddef.h>
 #include <limits.h>
 
+#include <types.h>
+
 // STUFF
 #include <madmath.h>
 #include <madmacro.h>
 
 
 typedef __SIZE_TYPE__ size_t;
-typedef __SIZE_TYPE__ ssize_t;
 
 typedef enum { false, true } bool;
 

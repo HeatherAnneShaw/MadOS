@@ -25,10 +25,17 @@
 #define MAKE_COLOR(fg, bg) (fg | bg << 4)
 #define MAKE_VGAENTRY(c, color) ((uint16_t) c | (uint16_t) color << 8)
 
+typedef struct cursor_pos {
+    int x;
+    int y;
+} cursor_pos_t;
+
+
 extern void video_clear(void);
 extern void video_update_cursor(int x, int y);
+extern void video_cursor_pos(cursor_pos_t* st);
 extern void video_setcolor(uint8_t color);
-extern void video_putchar(char c);
+extern void video_putchar(uint8_t c);
 extern void video_writestring(const char* data, size_t size);
 
 #endif

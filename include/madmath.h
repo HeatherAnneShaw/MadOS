@@ -12,5 +12,8 @@
 #define RSR(v, s) (typeof(v)) (v >> (s & (CHAR_BIT*sizeof(v)-1)) | ((s & (CHAR_BIT*sizeof(v)-1)) << ( (-(s & (CHAR_BIT*sizeof(v)-1))) & (CHAR_BIT*sizeof(v)-1) )))
 #define RSL(v, s) (typeof(v)) (v << (s & (CHAR_BIT*sizeof(v)-1)) | ((s & (CHAR_BIT*sizeof(v)-1)) >> ( (-(s & (CHAR_BIT*sizeof(v)-1))) & (CHAR_BIT*sizeof(v)-1) )))
 
+#define OR ||
+#define AND &&
+#define EQ ==
 
 #endif

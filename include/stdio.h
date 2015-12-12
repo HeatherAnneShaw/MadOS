@@ -34,7 +34,7 @@ extern size_t fwrite(const void *array, size_t size, size_t count, FILE* stream)
 
 //extern char *getline(char* __s, int __size);
 extern char *gets(char* __s);
-extern char getch(void);
+extern unsigned char (*getch) (void);
 #define getchar getch
 
 extern void panic(const char* s, unsigned int e);
