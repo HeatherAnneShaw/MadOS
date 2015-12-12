@@ -1380,6 +1380,7 @@ void __attribute__((constructor)) init_vga_graphics(void)
     
     video_writestring(video_INIT_MESSAGE, strlen(video_INIT_MESSAGE));
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+    video_writestring("Video Mode: 90x60 text\n\n", 24);
 }
 
 
