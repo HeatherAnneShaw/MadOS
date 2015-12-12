@@ -141,8 +141,8 @@ enum
     UART0_TDR    = (UART0_BASE + 0x8C),
 };
 
-size_t video_row = 0;
-size_t video_column = 0;
+int video_row = 0;
+int video_column = 0;
 
 /* Loop <delay> times in a way that the compiler won't optimize away. */
 static inline void delay(int32_t count)
@@ -251,9 +251,6 @@ void video_putchar(uint8_t c)
         case '\n':
             video_column = 0;
             ++video_row;
-            break;
-        case '\t':
-            video_column += ((video_column + 1) % 4);
             break;
         case '\b':
             if(video_column == 0)

@@ -4,10 +4,14 @@
 #include <string.h>
 #include <madmath.h>
 
+#define MAX_COMMAND_LENGTH 256
+#define MAX_COMMAND_LINE_LENGTH 512
+#define MAX_COMMAND_LINE_VECTOR_LENGTH MAX_COMMAND_LINE_LENGTH
+
 typedef void (*command_fun_ptr) (char**);
 
 typedef struct command_t {
-    char command[256];
+    char command[MAX_COMMAND_LENGTH];
     command_fun_ptr function;
 } command_t;
 
@@ -15,11 +19,13 @@ void command_clear(char** command)
 {
     command+=1;
     video_clear();
+    putch('\n');
 }
 extern void halt(void);
 void command_exit(char** command)
 {
     command+=1;
+    printf("< shell terminated >\n");
     halt();
 }
 
@@ -34,7 +40,7 @@ void __attribute__((constructor)) debug_shell_init(void)
 
 void debug_command(char* command_string)
 {
-    char* commandv[256];
+    char* commandv[MAX_COMMAND_LINE_VECTOR_LENGTH];
     int count = 1;
     commandv[0] = command_string;
     for(int i = 0, size = strlen(command_string);i <= size;i++)
@@ -63,8 +69,9 @@ void debug_command(char* command_string)
 void __attribute__((destructor)) debug_shell(void)
 {
     cursor_pos_t pos;
-    char command_string[512] = "";
+    char command_string[MAX_COMMAND_LINE_LENGTH] = "";
     printf("\n" PROMPT);
+    
     while(getch != NULL)
     {
         char c = getch();
@@ -102,11 +109,12 @@ void __attribute__((destructor)) debug_shell(void)
                     R = C
                     L = D
                 */
-                    c = getch();
-                    break;
+                c = getch();
+                break;
             default:
                 putch(c);
                 strcat(command_string, (char[]){c, 0});
+                break;
         }
     }
     panic("\ngetchar", 2);
