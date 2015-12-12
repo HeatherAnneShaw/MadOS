@@ -42,8 +42,8 @@ void keyboard_handler(struct regs *r)
         }
         switch(scancode)
         {
-            default:
-                printf("\nScancode: %x\n", scancode);
+            //default:
+                //printf("\nScancode: %x\n", scancode);
         }
     }
 }
