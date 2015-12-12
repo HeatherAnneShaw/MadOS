@@ -47,6 +47,12 @@ void video_update_cursor(int x, int y)
     outb(0x3D4, 0x0E);
     outb(0x3D5, (unsigned char )((position>>8)&0xFF));
 }
+
+void video_cursor_pos(cursor_pos_t* st)
+{
+    st->x = video_column;
+    st->y = video_row;
+}
  
 void video_setcolor(uint8_t color)
 {
