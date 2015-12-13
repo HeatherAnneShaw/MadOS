@@ -19,7 +19,7 @@ all:
 	$(CC) $(CFLAGS) -c arm/uart.c -o video.o
 
 	# extra's
-	$(CC) $(CFLAGS) -c shell.c -o shell.o
+	$(CC) $(CFLAGS) -c extra/shell.c -o shell.o
 
 	# link it all
 	$(CC) -lgcc $(CFLAGS) -T arm/linker.ld -o $(OBJ)
