@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////
+// THE SCOTCH-WARE LICENSE (Revision 0):
+// <aaronryool/gmail.com> wrote this file. As long as you retain this notice you
+// can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a shot of scotch in return
+////////////////////////////////////////////////////////////////////////////////
 
 #include <video.h>
 #include <stdio.h>
@@ -40,14 +46,14 @@ void command_echo(int count, char** argv)
     puts("");
 }
 
-#define command_list_size 3
+#define command_list_size 4
 command_t command_list[command_list_size];
 void __attribute__((constructor)) debug_shell_init(void)
 {
     command_list[0] = (command_t) {"clear", (void*) command_clear, "Clear the screen"};
     command_list[1] = (command_t) {"exit", (void*) command_exit,   "Exit the shell"};
     command_list[2] = (command_t) {"halt", (void*) command_exit,   "Halt the machine"};
-    command_list[2] = (command_t) {"echo", command_echo,           "Print out some text"};
+    command_list[3] = (command_t) {"echo", command_echo,           "Print out some text"};
 }
 
 void debug_command(char* command_string)
@@ -78,7 +84,7 @@ void debug_command(char* command_string)
                 command_list[i].function(count, commandv);
                 return;
             }
-            else if(strcmp(commandv[0], "help") == 0)
+            else if(strcmp(commandv[0], "help") == 0 || commandv[0][0] == '?')
             {
                 if(strcmp(command_list[i].command, commandv[1]) == 0)
                 {
@@ -87,11 +93,11 @@ void debug_command(char* command_string)
                 }
                 else if(commandv[1] == NULL)
                 {
-                    printf("%s: %s\n", command_list[i].command, command_list[i].description);
+                    printf("%s\t\t%s\n", command_list[i].command, command_list[i].description);
                 }
             }
         }
-        if(strcmp(commandv[0], "help") != 0)
+        if(strcmp(commandv[0], "help") != 0 && commandv[0][0] != '?')
             printf("%s: command not found\n", commandv[0]);
         putch('\n');
     }
