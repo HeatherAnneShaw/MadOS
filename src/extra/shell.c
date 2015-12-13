@@ -4,8 +4,8 @@
 #include <string.h>
 #include <madmath.h>
 
-#define MAX_COMMAND_LENGTH 256
-#define MAX_COMMAND_LINE_LENGTH 512
+#define MAX_COMMAND_LENGTH 40
+#define MAX_COMMAND_LINE_LENGTH MAX_COMMAND_LENGTH * 2
 #define MAX_COMMAND_LINE_VECTOR_LENGTH MAX_COMMAND_LINE_LENGTH
 
 typedef void (*command_fun_ptr) (int, char**);
