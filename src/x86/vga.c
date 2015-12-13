@@ -701,6 +701,8 @@ SET TEXT MODES
 
 extern const struct bitmap_font latin8_font;
 extern const struct bitmap_font latin16_font;
+extern const struct bitmap_font c648_font;
+extern const struct bitmap_font c6416_font;
 
 void set_text_mode(int hi_res)
 {
@@ -710,16 +712,16 @@ void set_text_mode(int hi_res)
 		write_regs(g_90x60_text);
 		video_WIDTH = 90;
         video_HEIGHT = 60;
-        write_font((unsigned char*) latin8_font.Bitmap, latin8_font.Height);
-        char_height = latin8_font.Height;
+        write_font((unsigned char*) latin8_font.Bitmap, c648_font.Height);
+        char_height = c648_font.Height;
 	}
 	else
 	{
 		write_regs(g_80x25_text);
 		video_WIDTH = 80;
         video_HEIGHT = 25;
-        write_font((unsigned char*) latin16_font.Bitmap, latin16_font.Height);
-        char_height = latin16_font.Height;
+        write_font((unsigned char*) latin16_font.Bitmap, c6416_font.Height);
+        char_height = c6416_font.Height;
 	}
 
 /* tell the BIOS what we've done, so BIOS text output works OK */

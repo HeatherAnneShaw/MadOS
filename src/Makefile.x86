@@ -1,7 +1,7 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
 OBJ	= kernel boot.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o madstd.o stdlib.o string.o stdio.o kernel.o
-EXTRA = shell.o latin-8.o latin-16.o
+EXTRA = shell.o latin-8.o latin-16.o c64-8.o c64-16.o
 
 all:
 	# libk
@@ -30,6 +30,8 @@ all:
 	gcc $(CFLAGS) -c extra/shell.c -o shell.o
 	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
 	gcc $(CFLAGS) -c x86/fonts/latin-16.c -o latin-16.o
+	gcc $(CFLAGS) -c x86/fonts/c64-8.c -o c64-8.o
+	gcc $(CFLAGS) -c x86/fonts/c64-16.c -o c64-16.o
 
 	# link it on up
 	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(EXTRA)
