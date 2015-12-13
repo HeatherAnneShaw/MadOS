@@ -128,8 +128,11 @@ void __attribute__((destructor)) debug_shell(void)
                 c = getch();
                 break;
             default:
-                putch(c);
-                strcat(command_string, (char[]){c, 0});
+                if(strlen(command_string) < MAX_COMMAND_LINE_LENGTH)
+                {
+                    putch(c);
+                    strcat(command_string, (char[]){c, 0});
+                }
                 break;
         }
     }
