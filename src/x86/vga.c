@@ -86,7 +86,9 @@ void video_putchar(uint8_t c)
             if(video_column == 0)
                 return;
             else
+            {
                 video_putentryat(' ', video_color, (video_column--)-1, video_row);
+            }
             break;
         default:
             video_putentryat(c, video_color, video_column, video_row);
@@ -411,6 +413,8 @@ unsigned char g_320x200x256_modex[] =
 };
 
 /* g_360x480x256_modex - to do */
+
+
 /*****************************************************************************
 *****************************************************************************/
 void read_regs(unsigned char *regs)
@@ -726,6 +730,10 @@ void set_text_mode(int hi_res)
 	pokeb(0x40, 0x61, char_height - 2);
 	pokeb(0x40, 0x84, video_HEIGHT - 1);	/* rows on screen - 1 */
 	pokeb(0x40, 0x85, char_height);		/* char height */
+    
+    // set block cursor
+    outb(0x3d4, 0xa);
+    outb(0x3d5, 0);
 /* set white-on-black attributes for all text */
 	for(unsigned int i = 0; i < video_WIDTH * video_HEIGHT; i++)
 		pokeb(0xB800, i * 2 + 1, 7);
