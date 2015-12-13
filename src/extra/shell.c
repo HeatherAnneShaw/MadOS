@@ -13,6 +13,7 @@ typedef void (*command_fun_ptr) (int, char**);
 typedef struct command_t {
     char command[MAX_COMMAND_LENGTH];
     command_fun_ptr function;
+    char description[256];
 } command_t;
 
 void command_clear(void)
@@ -43,17 +44,20 @@ void command_echo(int count, char** argv)
 command_t command_list[command_list_size];
 void __attribute__((constructor)) debug_shell_init(void)
 {
-    command_list[0] = (command_t) {"clear", (void*) command_clear};
-    command_list[1] = (command_t) {"exit", (void*) command_exit};
-    command_list[2] = (command_t) {"halt", (void*) command_exit};
-    command_list[2] = (command_t) {"echo", command_echo};
+    command_list[0] = (command_t) {"clear", (void*) command_clear, "Clear the screen"};
+    command_list[1] = (command_t) {"exit", (void*) command_exit,   "Exit the shell"};
+    command_list[2] = (command_t) {"halt", (void*) command_exit,   "Halt the machine"};
+    command_list[2] = (command_t) {"echo", command_echo,           "Print out some text"};
 }
 
 void debug_command(char* command_string)
 {
     char* commandv[MAX_COMMAND_LINE_VECTOR_LENGTH];
+    memset(commandv, 0, sizeof(commandv));
+    
     int count = 1;
     commandv[0] = command_string;
+    
     for(int i = 0, size = strlen(command_string);i <= size;i++)
     {
         if(command_string[i] == ' ')
@@ -66,6 +70,7 @@ void debug_command(char* command_string)
     if(commandv[0][0] == 0)
         return;
     else
+    {
         for(int i = 0;i < command_list_size;i++)
         {
             if(strcmp(command_list[i].command, commandv[0]) == 0)
@@ -73,8 +78,23 @@ void debug_command(char* command_string)
                 command_list[i].function(count, commandv);
                 return;
             }
+            else if(strcmp(commandv[0], "help") == 0)
+            {
+                if(strcmp(command_list[i].command, commandv[1]) == 0)
+                {
+                    printf("%s: %s\n\n", commandv[1], command_list[i].description);
+                    return;
+                }
+                else if(commandv[1] == NULL)
+                {
+                    printf("%s: %s\n", command_list[i].command, command_list[i].description);
+                }
+            }
         }
-        printf("%s: command not found\n", commandv[0]);
+        if(strcmp(commandv[0], "help") != 0)
+            printf("%s: command not found\n", commandv[0]);
+        putch('\n');
+    }
 }
 
 #if defined(__arm__)
