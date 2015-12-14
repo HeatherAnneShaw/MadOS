@@ -29,11 +29,11 @@ all:
 	
 	# extra
 	gcc $(CFLAGS) -c extra/shell.c -o shell.o
-	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
-	gcc $(CFLAGS) -c x86/fonts/latin-16.c -o latin-16.o
+#	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
+#	gcc $(CFLAGS) -c x86/fonts/latin-16.c -o latin-16.o
 	gcc $(CFLAGS) -c x86/fonts/c64-8.c -o c64-8.o
-	gcc $(CFLAGS) -c x86/fonts/c64-16.c -o c64-16.o
-	gcc $(CFLAGS) -c x86/fonts/terminus-8.c -o terminus-8.o
+#	gcc $(CFLAGS) -c x86/fonts/c64-16.c -o c64-16.o
+#	gcc $(CFLAGS) -c x86/fonts/terminus-8.c -o terminus-8.o
 	gcc $(CFLAGS) -c x86/fonts/terminus-16.c -o terminus-16.o
 
 	# link it on up
