@@ -1,6 +1,6 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ	= kernel boot.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o madstd.o stdlib.o string.o stdio.o kernel.o
+OBJ	= kernel boot.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o madstd.o stdlib.o string.o stdio.o dict.o kernel.o
 EXTRA = shell.o c64-8.o terminus-16.o
 
 all:
@@ -9,6 +9,7 @@ all:
 	gcc $(CFLAGS) -c string.c -o string.o
 	gcc $(CFLAGS) -c madstd.c -o madstd.o
 	gcc $(CFLAGS) -c stdio.c -o stdio.o
+	gcc $(CFLAGS) -c dict.c -o dict.o
 	
 	# kernel
 	nasm -f elf32 x86/boot.s -o boot.o

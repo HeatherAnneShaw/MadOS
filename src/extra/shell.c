@@ -60,10 +60,10 @@ void debug_command(char* command_string)
 {
     char* commandv[MAX_COMMAND_LINE_VECTOR_LENGTH];
     memset(commandv, 0, sizeof(commandv));
-    
+
     int count = 1;
     commandv[0] = command_string;
-    
+
     for(int i = 0, size = strlen(command_string);i <= size;i++)
     {
         if(command_string[i] == ' ')
