@@ -5,4 +5,12 @@
 // this stuff is worth it, you can buy me a shot of scotch in return
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
+
+typedef struct page_frame {
+    void* link;
+    void* virtual;
+    size_t size;
+    int16_t status;
+} page_frame_t;
 

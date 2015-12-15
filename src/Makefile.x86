@@ -1,7 +1,7 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
 OBJ	= kernel boot.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o kernel.o
-LIBK = madstd.o stdlib.o string.o stdio.o dict.o
+LIBK = madstd.o stdlib.o string.o stdio.o
 EXTRA = shell.o
 FONTS = c64-8.o terminus-16.o
 
@@ -11,7 +11,6 @@ all:
 	gcc $(CFLAGS) -c string.c -o string.o
 	gcc $(CFLAGS) -c madstd.c -o madstd.o
 	gcc $(CFLAGS) -c stdio.c -o stdio.o
-	gcc $(CFLAGS) -c dict.c -o dict.o
 	
 	# kernel
 	nasm -f elf32 x86/boot.s -o boot.o
@@ -31,6 +30,8 @@ all:
 	
 	# extra
 	gcc $(CFLAGS) -c extra/shell.c -o shell.o
+
+	# fonts
 #	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
 #	gcc $(CFLAGS) -c x86/fonts/latin-16.c -o latin-16.o
 	gcc $(CFLAGS) -c x86/fonts/c64-8.c -o c64-8.o

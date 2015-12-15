@@ -57,6 +57,7 @@ void __fini(void)
         (*__fini_array_start[i])();
 }
 
+
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
