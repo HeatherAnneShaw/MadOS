@@ -19,6 +19,7 @@ uint64_t page_table[512] __attribute__((aligned(0x1000)));
 extern uint32_t KERNEL_END;
 extern void halt(void);
 
+
 void clear_page_directory()
 {
     for(unsigned int i = 0, address = 0; i < 512; i++)
@@ -48,6 +49,119 @@ void init_paging(void)
 }
 
 
+/******************************************************************
+    This malloc / free implementation is just temporary so that
+    I may have stone age memory management while I work on other
+    things.
+*******************************************************************/
+uint32_t MEM_EARLY_SIZE = 0;
+uint32_t MEM_KLUDGE = 0;
+uint32_t MEM_KLUDGE_END = 0;
+uint32_t MEM_PTR = 0;
+
+typedef struct mem_entry{
+    bool free;
+    uint32_t prev;
+    uint32_t ptr;
+    uint32_t next;
+} mem_entry_t;
+
+
+void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
+{
+    multiboot_memory_map_t* mmap;
+    MEM_EARLY_SIZE = mbi->mem_upper;
+    if(magic != MULTIBOOT_BOOTLOADER_MAGIC) goto skip_multiboot;
+
+    if(CHECK_FLAG (mbi->flags, 6))
+    {
+        for(mmap = (multiboot_memory_map_t *) mbi->mmap_addr;
+            (unsigned long) mmap < mbi->mmap_addr + mbi->mmap_length;
+            mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+            + mmap->size + sizeof(mmap->size)))
+            {
+                if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE && mmap->addr >= &KERNEL_END)
+                {
+                    MEM_KLUDGE = (uint32_t) &KERNEL_END;
+                    MEM_EARLY_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
+                    break;
+                }
+            }
+    }
+
+skip_multiboot:
+    KERNEL_END = &KERNEL_END;
+    if(MEM_KLUDGE == 0)
+        MEM_KLUDGE = KERNEL_END;
+    MEM_PTR = MEM_KLUDGE;
+    MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
+
+    // first marker block
+    uint32_t a_block = MEM_PTR;
+    ((mem_entry_t*) a_block)->free = false;
+    ((mem_entry_t*) a_block)->prev = MEM_PTR;
+    ((mem_entry_t*) a_block)->ptr = MEM_PTR + sizeof(mem_entry_t);
+    ((mem_entry_t*) a_block)->next = MEM_PTR + sizeof(mem_entry_t);
+
+    // first entry block
+    uint32_t b_block = ((mem_entry_t*) a_block)->next;
+    ((mem_entry_t*) b_block)->free = true;
+    ((mem_entry_t*) b_block)->prev = a_block;
+    ((mem_entry_t*) b_block)->ptr = b_block + sizeof(mem_entry_t);
+    ((mem_entry_t*) b_block)->next = MEM_KLUDGE_END - sizeof(mem_entry_t);
+
+    // end marker block
+    uint32_t c_block = ((mem_entry_t*) b_block)->next;
+    ((mem_entry_t*) c_block)->free = false;
+    ((mem_entry_t*) c_block)->prev = b_block;
+    ((mem_entry_t*) c_block)->ptr = MEM_KLUDGE_END;
+    ((mem_entry_t*) c_block)->next = MEM_KLUDGE_END;
+
+    init_paging();
+}
+
+uint32_t mget_free_block(uint32_t p, size_t size)
+{
+    while(((mem_entry_t*)p)->ptr != MEM_KLUDGE_END)
+    {
+        if(((mem_entry_t*)p)->free && (((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size) break;
+        p = ((mem_entry_t*)p)->next;
+    }
+    return p;
+}
+
+void* malloc_early(size_t size)
+{
+    uint32_t p = MEM_KLUDGE;
+    p = mget_free_block(p, size);
+    if(((mem_entry_t*)p)->next == MEM_KLUDGE_END || p == MEM_KLUDGE_END)
+    {
+        panic("malloc", 0);
+        halt();
+    }
+
+    // split free block if larger than size + sizeof(mem_entry_t) * 2
+    
+
+    // choose one of the two if split and mark not free
+    ((mem_entry_t*) p)->free = false;
+
+    // combine contigeous free blocks
+    
+
+    return (void*) ((mem_entry_t*) p)->ptr;
+}
+
+malloc_t* malloc = malloc_early;
+
+void free(void* ptr)
+{
+    mem_entry_t* e = ptr - sizeof(mem_entry_t);
+    if(e->ptr == (uint32_t) ptr)
+    {
+        e->free = true;
+    }
+}
 
 
 
