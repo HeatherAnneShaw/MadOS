@@ -69,10 +69,6 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
     
     printf("flags = 0b%b\n", (unsigned) mbi->flags);
-    
-    if(CHECK_FLAG(mbi->flags, 0))
-        printf("mem_lower = %uKB, mem_upper = %uKB\n",
-            (unsigned) mbi->mem_lower, (unsigned) mbi->mem_upper);
      
     // Is boot_device valid? 
     if(CHECK_FLAG(mbi->flags, 1))
@@ -80,7 +76,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         
     // Is the command line passed? 
     if(CHECK_FLAG(mbi->flags, 2))
-        printf("cmdline = %s\n", (char *) mbi->cmdline);
+        printf("cmdline = %s\n", (char*) mbi->cmdline);
      
     // Are mods_* valid? 
     if(CHECK_FLAG(mbi->flags, 3))
@@ -111,7 +107,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     {
         multiboot_aout_symbol_table_t *multiboot_aout_sym = &(mbi->u.aout_sym);
         printf("multiboot_aout_symbol_table: tabsize = 0x%0x, "
-            "strsize = 0x%x, addr = 0x%x\n\n",
+            "strsize = 0x%x, addr = 0x%x\n",
             (unsigned) multiboot_aout_sym->tabsize,
             (unsigned) multiboot_aout_sym->strsize,
             (unsigned) multiboot_aout_sym->addr);
@@ -122,10 +118,14 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     {
         multiboot_elf_section_header_table_t *multiboot_elf_sec = &(mbi->u.elf_sec);
         printf("multiboot_elf_sec: num = %u, size = 0x%x,"
-            " addr = 0x%x, shndx = 0x%x\n",
+            " addr = 0x%x, shndx = 0x%x\n\n",
             (unsigned) multiboot_elf_sec->num, (unsigned) multiboot_elf_sec->size,
             (unsigned) multiboot_elf_sec->addr, (unsigned) multiboot_elf_sec->shndx);
     }
+
+    if(CHECK_FLAG(mbi->flags, 0))
+        printf("\nmem_lower = %uKB, mem_upper = %uKB\n",
+            (unsigned) mbi->mem_lower, (unsigned) mbi->mem_upper);
     // Are mmap_* valid?
     if (CHECK_FLAG (mbi->flags, 6))
     {
