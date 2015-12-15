@@ -6,23 +6,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
+#include <stdio.h>
 
-typedef struct page_frame {
-    void* link;
-    void* virtual;
-    size_t size;
-    int16_t status;
-} page_frame_t;
-
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
-
-uint32_t first_page_table[1024] __attribute__((aligned(4096)));
+uint64_t page_dir_ptr_tab[4] __attribute__((aligned(0x20))); // must be aligned to (at least)0x20, ...
+    // ... turning out that you can put more of them into one page, saving memory
+uint64_t page_directory[512] __attribute__((aligned(0x1000)));  // must be aligned to page boundary
+uint64_t first_page_table[512] __attribute__((aligned(0x1000)));
 
 
 void clear_page_directory()
 {
-    int i;
-    for(i = 0; i < 1024; i++)
+    for(unsigned int i = 0; i < 1024; i++)
     {
         // This sets the following flags to the pages:
         //   Supervisor: Only kernel-mode can access them
@@ -30,20 +24,29 @@ void clear_page_directory()
         //   Not Present: The page table is not present
         page_directory[i] = 0x00000002;
     }
+    for(unsigned int i = 0, address = 0; i < 512; i++)
+    {
+        first_page_table[i] = address | 3; // map address and mark it present/writable
+        address = address + 0x1000;
+    }
 }
 
-extern void loadPageDirectory(unsigned int*);
-extern void enablePaging();
+static inline void __native_flush_tlb_single(unsigned long addr)
+{
+   asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+}
 
-
+extern void enable_paging(void);
 void __attribute__((constructor)) init_paging(void)
 {
     clear_page_directory();
-    // attributes: supervisor level, read/write, present
-    page_directory[0] = ((unsigned int)first_page_table) | 3;
+    page_dir_ptr_tab[0] = (uint64_t)&page_directory | 1; // set the page directory into the PDPT and mark it present
+    page_directory[0] = (uint64_t)&first_page_table | 3; //set the page table into the PD and mark it present/writable
 
-    loadPageDirectory(page_directory);
-    enablePaging();
+
+    asm volatile ("movl %cr4, %eax; bts $5, %eax; movl %eax, %cr4"); // set bit5 in CR4 to enable PAE		 
+    asm volatile ("movl %%eax, %%cr3" :: "a" (&page_dir_ptr_tab)); // load PDPT into CR3
+    asm volatile ("movl %cr0, %eax; orl $0x80000000, %eax; movl %eax, %cr0;");
 }
 
 

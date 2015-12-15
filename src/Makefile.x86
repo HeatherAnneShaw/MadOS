@@ -1,9 +1,10 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ	= kernel boot.o tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o kernel.o
+OBJ	= kernel boot.o kernel.o
+FONTS = c64-8.o terminus-16.o
+DRIVERS = tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o page.o
 LIBK = madstd.o stdlib.o string.o stdio.o
 EXTRA = shell.o
-FONTS = c64-8.o terminus-16.o
 
 all:
 	# libk
@@ -21,6 +22,7 @@ all:
 	gcc $(CFLAGS) -c x86/vga.c -o video.o
 	gcc $(CFLAGS) -c x86/keyboard.c -o keyboard.o
 	gcc $(CFLAGS) -c x86/timer.c -o timer.o
+	gcc $(CFLAGS) -c x86/page.c -o page.o
 	
 	gcc $(CFLAGS) -c x86/idt.c -o idt.o
 	gcc $(CFLAGS) -c x86/page.c -o page.o
@@ -42,7 +44,7 @@ all:
 #	gcc $(CFLAGS) -c x86/fonts/matrix-16.c -o matrix-16.o
 
 	# link it on up
-	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(LIBK) $(FONTS) $(EXTRA)
+	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FONTS) $(LIBK) $(DRIVERS) $(EXTRA)
 
 test:
 	qemu-system-i386 -kernel kernel -append debug
