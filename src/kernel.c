@@ -18,11 +18,26 @@
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+/******************************************************************
+    This malloc / free implementation is just temporary so that
+    I may have stone age memory management while I work on other
+    things.
+*******************************************************************/
+
+
 uint32_t MEM_EARLY_SIZE = 0;
 uint32_t MEM_KLUDGE = 0;
 uint32_t MEM_KLUDGE_END = 0;
 uint32_t MEM_PTR = 0;
 extern uint32_t KERNEL_END;
+
+typedef struct mem_entry{
+    bool free;
+    uint32_t prev;
+    uint32_t ptr;
+    uint32_t next;
+} mem_entry_t;
+
 
 void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
@@ -37,10 +52,10 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
             mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
             + mmap->size + sizeof (mmap->size)))
         {
-            if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE)
+            if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE && mmap->addr >= &KERNEL_END)
             {
-                MEM_KLUDGE = (uint32_t) &KERNEL_END; //mmap->addr;
-                MEM_EARLY_SIZE = (uint32_t) mmap->len;
+                MEM_KLUDGE = (uint32_t) &KERNEL_END;
+                MEM_EARLY_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
             }
         }
     }
@@ -51,59 +66,72 @@ skip_multiboot:
         MEM_KLUDGE = KERNEL_END;
     MEM_PTR = MEM_KLUDGE;
     MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
+
+    // first marker block
+    uint32_t a_block = MEM_PTR;
+    ((mem_entry_t*) a_block)->free = false;
+    ((mem_entry_t*) a_block)->prev = MEM_PTR;
+    ((mem_entry_t*) a_block)->ptr = MEM_PTR + sizeof(mem_entry_t);
+    ((mem_entry_t*) a_block)->next = MEM_PTR + sizeof(mem_entry_t);
+
+    // first entry block
+    uint32_t b_block = ((mem_entry_t*) a_block)->next;
+    ((mem_entry_t*) b_block)->free = true;
+    ((mem_entry_t*) b_block)->prev = a_block;
+    ((mem_entry_t*) b_block)->ptr = b_block + sizeof(mem_entry_t);
+    ((mem_entry_t*) b_block)->next = MEM_KLUDGE_END - sizeof(mem_entry_t);
+
+    // end marker block
+    uint32_t c_block = ((mem_entry_t*) b_block)->next;
+    ((mem_entry_t*) c_block)->free = false;
+    ((mem_entry_t*) c_block)->prev = b_block;
+    ((mem_entry_t*) c_block)->ptr = MEM_KLUDGE_END;
+    ((mem_entry_t*) c_block)->next = MEM_KLUDGE_END;
+
 }
 
-/******************************************************************
-    This malloc / free implementation is just temporary so that
-    I may have stone age memory management while I work on other
-    things.
-*******************************************************************/
-typedef struct mem_entry{
-    bool free;
-    uint32_t ptr;
-    uint32_t next;
-} mem_entry_t;
+uint32_t mget_free_block(uint32_t p, size_t size)
+{
+    while(((mem_entry_t*)p)->ptr != MEM_KLUDGE_END)
+    {
+        if(((mem_entry_t*)p)->free && (((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size) break;
+        p = ((mem_entry_t*)p)->next;
+    }
+    return p;
+}
 
 void* malloc_early(size_t size)
 {
-    mem_entry_t* entry = MEM_PTR;
-    entry->ptr = MEM_PTR + sizeof(mem_entry_t);
-    entry->next = entry->ptr + size;
-    entry->free = false;
-    
-    MEM_PTR = entry->next;
-    
-    if(MEM_PTR >= MEM_KLUDGE_END)
+    uint32_t p = MEM_KLUDGE;
+    p = mget_free_block(p, size);
+    if(((mem_entry_t*)p)->next == MEM_KLUDGE_END || p == MEM_KLUDGE_END)
     {
         panic("malloc", 0);
         halt();
     }
-    return (MEM_PTR + sizeof(mem_entry_t));
+
+    // split free block if larger than size + sizeof(mem_entry_t) * 2
+    
+
+    // choose one of the two if split and mark not free
+    ((mem_entry_t*) p)->free = false;
+
+    // combine contigeous blocks
+    
+
+    return (void*) p;
 }
 
 malloc_t* malloc = malloc_early;
 
 void free(void* ptr)
-{/*
-    for(unsigned int i = 0;i <= MEM_EARLY_SIZE;i++)
+{
+    mem_entry_t* e = ptr - sizeof(mem_entry_t);
+    if(e->ptr == (uint32_t) ptr)
     {
-        if((MEM_FLAT_TABLE+i)->ptr == ptr)
-        {
-            (MEM_FLAT_TABLE+i)->ptr = NULL;
-            if(ptr + (MEM_FLAT_TABLE+i)->size == MEM_PTR)
-            {
-                MEM_PTR -= (MEM_FLAT_TABLE+i)->size;
-                (MEM_FLAT_TABLE+i)->size = 0;
-            }
-            break;
-        }
+        e->free = true;
     }
-    if(i == MEM_EARLY_SIZE) return;
-    if((MEM_FLAT_TABLE + i) == (MEM_FLAT_TABLE_TOP - 1))
-    {
-        MEM_FLAT_TABLE_TOP -= 1;
-    }
-*/}
+}
 
 
 
@@ -122,7 +150,7 @@ void __attribute__((constructor)) handler_initialize(void)
     isrs_install();
     irq_install();
 
-//    init_paging();
+    init_paging();
 }
 
 #endif
@@ -253,7 +281,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
 skip_multiboot: ({}); // labels must be part of a statement
-    char* p;
+    /*char* p;
     unsigned int counter = 0;
     puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
     while(counter < 1024 * 80)
@@ -269,8 +297,8 @@ skip_multiboot: ({}); // labels must be part of a statement
     }
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     puts("\n");
-
-    char* a = malloc(2);
-    char* b = malloc(64);
-    printf("%x, %x", (unsigned) &a, (unsigned) &b);
+*/
+    uint32_t a = malloc(2);
+    free(a);
+    printf("%x\n", (a & 0xffffffff));
 }
