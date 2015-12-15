@@ -38,16 +38,16 @@ void __attribute__((constructor)) handler_initialize(void)
 
 #endif
 
-extern void (*__init_array_start []) (void);
-extern void (*__init_array_end []) (void);
+extern void (*__init_array_start []) (multiboot_uint32_t magic, multiboot_info_t* mbi);
+extern void (*__init_array_end []) (multiboot_uint32_t magic, multiboot_info_t* mbi);
 
-void __init(void)
+void __init(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
-    mem_initialize();   // initialize stage 1 memory manager
+    mem_initialize(magic, mbi);   // initialize stage 1 memory manager
 
     size_t i = __init_array_end - __init_array_start;
     while(i--)
-        (*__init_array_start[i])();
+        (*__init_array_start[i])(magic, mbi);
 }
 
 
@@ -111,7 +111,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     {
         multiboot_aout_symbol_table_t *multiboot_aout_sym = &(mbi->u.aout_sym);
         printf("multiboot_aout_symbol_table: tabsize = 0x%0x, "
-            "strsize = 0x%x, addr = 0x%x\n",
+            "strsize = 0x%x, addr = 0x%x\n\n",
             (unsigned) multiboot_aout_sym->tabsize,
             (unsigned) multiboot_aout_sym->strsize,
             (unsigned) multiboot_aout_sym->addr);
@@ -134,23 +134,42 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             (unsigned) mbi->mmap_addr, (unsigned) mbi->mmap_length);
         for (mmap = (multiboot_memory_map_t *) mbi->mmap_addr;
             (unsigned long) mmap < mbi->mmap_addr + mbi->mmap_length;
-                mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
-                    + mmap->size + sizeof (mmap->size)))
-        printf (" size = 0x%x, base_addr = 0x%x%x,"
-            " length = 0x%x%x, type = 0x%x\n",
-            (unsigned) mmap->size,
-            mmap->addr >> 32,
-            mmap->addr & 0xffffffff,
-            mmap->len >> 32,
-            mmap->len & 0xffffffff,
-            (unsigned) mmap->type);
+            mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+            + mmap->size + sizeof (mmap->size)))
+        {
+            {
+                if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE)
+                {
+                    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_BLACK));
+                    printf("AVAILABLE ");
+                }
+                else if(mmap->type == MULTIBOOT_MEMORY_RESERVED)
+                {
+                    video_setcolor(MAKE_COLOR(COLOR_RED, COLOR_BLACK));
+                    printf("RESERVED  ");
+                }
+                else
+                {
+                    video_setcolor(MAKE_COLOR(COLOR_LIGHT_BROWN, COLOR_BLACK));
+                    printf("UNKNOWN   ");
+                }
+            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+            printf ("-> size = 0x%x, base_addr = 0x%x%x,"
+                " length = 0x%x%x\n",
+                (unsigned) (mmap->size),
+                (unsigned) (mmap->addr >> 32),
+                (unsigned) (mmap->addr & 0xffffffff),
+                (unsigned) (mmap->len >> 32),
+                (unsigned) (mmap->len & 0xffffffff));
+            }
+        }
     }
 skip_multiboot: ({}); // labels must be part of a statement
     
     char* p;
     unsigned int counter = 0;
-    puts("\nAllocating / freeing 1GB to test memory manager stability:\n");
-    while(counter < 1024 * 1024)
+    puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
+    while(counter < 1024 * 80)
     {
         p = malloc(1024);
         memset(p, 'X', 1024);
