@@ -116,7 +116,7 @@ void* malloc_early(size_t size)
     // choose one of the two if split and mark not free
     ((mem_entry_t*) p)->free = false;
 
-    // combine contigeous blocks
+    // combine contigeous free blocks
     
 
     return (void*) p;
