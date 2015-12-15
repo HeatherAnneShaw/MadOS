@@ -15,7 +15,8 @@ all:
 	
 	# kernel
 	nasm -f elf32 x86/boot.s -o boot.o
-	
+	gcc $(CFLAGS) -c kernel.c -o kernel.o
+
 	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
 	gcc $(CFLAGS) -c x86/port.c -o port.o
@@ -28,7 +29,6 @@ all:
 	gcc $(CFLAGS) -c x86/page.c -o page.o
 	gcc $(CFLAGS) -c x86/isr.c -o isr.o
 	gcc $(CFLAGS) -c x86/irq.c -o irq.o
-	gcc $(CFLAGS) -c kernel.c -o kernel.o
 	
 	# extra
 	gcc $(CFLAGS) -c extra/shell.c -o shell.o
@@ -47,7 +47,7 @@ all:
 	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FONTS) $(LIBK) $(DRIVERS) $(EXTRA)
 
 test:
-	qemu-system-i386 -kernel kernel -append debug
+	qemu-system-i386 -kernel kernel -append debug -m 1024
 
 clean:
 	rm *.o

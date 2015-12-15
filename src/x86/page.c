@@ -44,83 +44,9 @@ void init_paging(void)
     asm volatile ("movl %cr0, %eax; orl $0x80000000, %eax; movl %eax, %cr0;");
 
     printf("Paging enabled\npage directory table: 0x%x, page directory: 0x%x, page table: 0x%x\n\n",
-        &page_dir_ptr_tab, &page_directory, &page_table);
+        (unsigned) page_dir_ptr_tab, (unsigned) page_directory, (unsigned) page_table);
 }
 
-
-/******************************************************************
-    This malloc / free implementation is just temporary so that
-    I may have stone age memory management while I work on other
-    things.
-*******************************************************************/
-
-
-#define MEM_EARLY_SIZE 1024 * 3   // this guy needs to become an integer set to free - kernel_end
-char* MEM_KLUDGE;
-char* MEM_KLUDGE_END;
-char* MEM_PTR;
-
-mem_entry_t MEM_FLAT_TABLE[MEM_EARLY_SIZE];
-mem_entry_t* MEM_FLAT_TABLE_TOP = MEM_FLAT_TABLE;
-void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
-{
-    multiboot_memory_map_t* mmap;
-    while(mmap < mbi->mmap_addr + mbi->mmap_length)
-    {
-        mmap = (multiboot_memory_map_t*) ((unsigned int)mmap + mmap->size + sizeof(unsigned int));
-    }
-    
-    MEM_KLUDGE = KERNEL_END;
-    MEM_PTR = MEM_KLUDGE;
-    MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
-
-    for(unsigned i = 0;i < MEM_EARLY_SIZE;i++)
-    {
-        MEM_KLUDGE[i] = 0;
-        (MEM_FLAT_TABLE+i)->ptr = NULL;
-        (MEM_FLAT_TABLE+i)->size = 0;
-    }
-}
-
-void* malloc_early(size_t size)
-{
-    MEM_PTR += size;
-    if(MEM_PTR >= MEM_KLUDGE_END)
-    {
-        panic("malloc", 0);
-        halt();
-    }
-    
-    MEM_FLAT_TABLE_TOP->ptr = MEM_PTR - size;
-    MEM_FLAT_TABLE_TOP->size = size;
-    MEM_FLAT_TABLE_TOP += 1;
-    return MEM_PTR - size;
-}
-
-malloc_t* malloc = malloc_early;
-
-void free(void* ptr)
-{
-    int i;
-    for(i = 0;i <= MEM_EARLY_SIZE;i++)
-    {
-        if((MEM_FLAT_TABLE+i)->ptr == ptr)
-        {
-            (MEM_FLAT_TABLE+i)->ptr = NULL;
-            if(ptr + (MEM_FLAT_TABLE+i)->size == MEM_PTR)
-            {
-                MEM_PTR -= (MEM_FLAT_TABLE+i)->size;
-                (MEM_FLAT_TABLE+i)->size = 0;
-            }
-            break;
-        }
-    }
-    if(i == MEM_EARLY_SIZE) return;
-    if((MEM_FLAT_TABLE + i) == (MEM_FLAT_TABLE_TOP - 1))
-    {
-        MEM_FLAT_TABLE_TOP -= 1;
-    }
-}
 
 
 

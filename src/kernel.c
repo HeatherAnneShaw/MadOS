@@ -18,6 +18,95 @@
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+uint32_t MEM_EARLY_SIZE = 0;
+uint32_t MEM_KLUDGE = 0;
+uint32_t MEM_KLUDGE_END = 0;
+uint32_t MEM_PTR = 0;
+extern uint32_t KERNEL_END;
+
+void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
+{
+    multiboot_memory_map_t* mmap;
+    MEM_EARLY_SIZE = mbi->mem_upper;
+    if(magic != MULTIBOOT_BOOTLOADER_MAGIC) goto skip_multiboot;
+
+    if (CHECK_FLAG (mbi->flags, 6))
+    {
+        for (mmap = (multiboot_memory_map_t *) mbi->mmap_addr;
+            (unsigned long) mmap < mbi->mmap_addr + mbi->mmap_length;
+            mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+            + mmap->size + sizeof (mmap->size)))
+        {
+            if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE)
+            {
+                MEM_KLUDGE = (uint32_t) &KERNEL_END; //mmap->addr;
+                MEM_EARLY_SIZE = (uint32_t) mmap->len;
+            }
+        }
+    }
+
+skip_multiboot:
+    KERNEL_END = &KERNEL_END;
+    if(MEM_KLUDGE == 0)
+        MEM_KLUDGE = KERNEL_END;
+    MEM_PTR = MEM_KLUDGE;
+    MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
+}
+
+/******************************************************************
+    This malloc / free implementation is just temporary so that
+    I may have stone age memory management while I work on other
+    things.
+*******************************************************************/
+typedef struct mem_entry{
+    bool free;
+    uint32_t ptr;
+    uint32_t next;
+} mem_entry_t;
+
+void* malloc_early(size_t size)
+{
+    mem_entry_t* entry = MEM_PTR;
+    entry->ptr = MEM_PTR + sizeof(mem_entry_t);
+    entry->next = entry->ptr + size;
+    entry->free = false;
+    
+    MEM_PTR = entry->next;
+    
+    if(MEM_PTR >= MEM_KLUDGE_END)
+    {
+        panic("malloc", 0);
+        halt();
+    }
+    return (MEM_PTR + sizeof(mem_entry_t));
+}
+
+malloc_t* malloc = malloc_early;
+
+void free(void* ptr)
+{/*
+    for(unsigned int i = 0;i <= MEM_EARLY_SIZE;i++)
+    {
+        if((MEM_FLAT_TABLE+i)->ptr == ptr)
+        {
+            (MEM_FLAT_TABLE+i)->ptr = NULL;
+            if(ptr + (MEM_FLAT_TABLE+i)->size == MEM_PTR)
+            {
+                MEM_PTR -= (MEM_FLAT_TABLE+i)->size;
+                (MEM_FLAT_TABLE+i)->size = 0;
+            }
+            break;
+        }
+    }
+    if(i == MEM_EARLY_SIZE) return;
+    if((MEM_FLAT_TABLE + i) == (MEM_FLAT_TABLE_TOP - 1))
+    {
+        MEM_FLAT_TABLE_TOP -= 1;
+    }
+*/}
+
+
+
 #if defined(__i386__)
 
 extern void gdt_install();
@@ -32,8 +121,8 @@ void __attribute__((constructor)) handler_initialize(void)
     idt_install();
     isrs_install();
     irq_install();
-    
-    init_paging();
+
+//    init_paging();
 }
 
 #endif
@@ -60,7 +149,6 @@ void __fini(void)
         (*__fini_array_start[i])();
 }
 
-
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
@@ -72,7 +160,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
      
     // Is boot_device valid? 
     if(CHECK_FLAG(mbi->flags, 1))
-        printf("boot_device = 0x%x\n", (unsigned) mbi->boot_device);
+        printf("boot_device = 0x%x\n", (unsigned) mbi->boot_device);    
         
     // Is the command line passed? 
     if(CHECK_FLAG(mbi->flags, 2))
@@ -165,7 +253,6 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
 skip_multiboot: ({}); // labels must be part of a statement
-    
     char* p;
     unsigned int counter = 0;
     puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
@@ -180,7 +267,10 @@ skip_multiboot: ({}); // labels must be part of a statement
             putchar('.');
         }
     }
-    
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
     puts("\n");
+
+    char* a = malloc(2);
+    char* b = malloc(64);
+    printf("%x, %x", (unsigned) &a, (unsigned) &b);
 }
