@@ -9,14 +9,29 @@
 
 section .bss
 align 4096
-global page_table
-global page_directory
-page_table: resb (1024 * 4 * 1024)	; Reserve uninitialised space for Page Table -  # of entries/page table * 4 bytes/entry * total # of page tables 
-											; actual size = 4194304 bytes = 4MiB, represents 4GiB in physical memory
-											; ie. each 4 byte entry represent 4 KiB in physical memory
-page_directory: resb (1024 * 4 * 1) ; Reserve uninitialised space for Page Directory - # of pages tables * 4 bytes/entry * # of directory (4096 = 4 KiB)
-
 section .text
+
+global load_page_directory
+load_page_directory:
+    push ebp
+    mov ebp, esp
+    mov eax, [esp+8]
+    mov cr3, eax
+    mov esp, ebp
+    pop ebp
+    ret
+
+global enable_paging
+enable_paging:
+    push ebp
+    mov ebp, esp
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
+    mov esp, ebp
+    pop ebp
+    ret
+
 
 global gdt_flush     ; Allows the C code to link to this
 gdt:
