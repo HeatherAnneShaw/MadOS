@@ -11,7 +11,6 @@ section .bss
 align 4096
 section .text
 
-
 global gdt_flush     ; Allows the C code to link to this
 gdt:
 db 0, 0, 0, 0, 0, 0, 0, 0			; Offset: 0  - Null selector - required 

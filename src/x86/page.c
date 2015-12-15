@@ -41,7 +41,7 @@ void init_paging(void)
     asm volatile ("movl %%eax, %%cr3" :: "a" (&page_dir_ptr_tab)); // load PDPT into CR3
     asm volatile ("movl %cr0, %eax; orl $0x80000000, %eax; movl %eax, %cr0;");
 
-    printf("Paging enabled\npage_dir_ptr_tab: 0x%x, page_directory: 0x%x, page_table: 0x%x\n\n",
+    printf("Paging enabled\npage directory table: 0x%x, page directory: 0x%x, page table: 0x%x\n\n",
         &page_dir_ptr_tab, &page_directory, &page_table);
 }
 
