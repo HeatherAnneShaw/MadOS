@@ -13,6 +13,7 @@ uint64_t page_dir_ptr_tab[4] __attribute__((aligned(0x20))); // must be aligned 
 uint64_t page_directory[512] __attribute__((aligned(0x1000)));  // must be aligned to page boundary
 uint64_t page_table[512] __attribute__((aligned(0x1000)));
 
+extern uint32_t KERNEL_END;
 
 void clear_page_directory()
 {
@@ -41,6 +42,7 @@ void init_paging(void)
     printf("Paging enabled\npage directory table: 0x%x, page directory: 0x%x, page table: 0x%x\n\n",
         &page_dir_ptr_tab, &page_directory, &page_table);
 }
+
 
 
 

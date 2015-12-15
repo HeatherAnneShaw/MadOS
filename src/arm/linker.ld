@@ -32,4 +32,6 @@ SECTIONS {
     STACK_BASE = .;
     . += 0x10000;
     STACK_TOP = .;
+    
+    KERNEL_END = .;
 }

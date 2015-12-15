@@ -16,17 +16,22 @@
     I may have stone age memory management while I work on other
     things.
 *******************************************************************/
-#define MEM_EARLY_SIZE 1024 * 3
+#define MEM_EARLY_SIZE 1024 * 3   // this guy needs to become an integer set to free - kernel_end
+extern void* KERNEL_END;
+char* MEM_KLUDGE;
+char* MEM_KLUDGE_END;
+char* MEM_PTR;
+
 mem_entry_t MEM_FLAT_TABLE[MEM_EARLY_SIZE];
 mem_entry_t* MEM_FLAT_TABLE_TOP = MEM_FLAT_TABLE;
-
-char MEM_KLUDGE[MEM_EARLY_SIZE];
-char* MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
-char* MEM_PTR = MEM_KLUDGE;
 
 extern void halt(void);
 void mem_initialize(void)
 {
+    MEM_KLUDGE = KERNEL_END;
+    MEM_PTR = MEM_KLUDGE;
+    MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
+
     for(unsigned i = 0;i < MEM_EARLY_SIZE;i++)
     {
         MEM_KLUDGE[i] = 0;

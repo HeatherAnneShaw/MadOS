@@ -149,8 +149,8 @@ skip_multiboot: ({}); // labels must be part of a statement
     
     char* p;
     unsigned int counter = 0;
-    puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
-    while(counter < 1024 * 80)
+    puts("\nAllocating / freeing 1GB to test memory manager stability:\n");
+    while(counter < 1024 * 1024)
     {
         p = malloc(1024);
         memset(p, 'X', 1024);
