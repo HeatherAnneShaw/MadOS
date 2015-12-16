@@ -55,10 +55,9 @@ void init_paging(void)
     I may have stone age memory management while I work on other
     things.
 *******************************************************************/
-uint32_t MEM_EARLY_SIZE = 0;
-uint32_t MEM_KLUDGE = 0;
-uint32_t MEM_KLUDGE_END = 0;
-uint32_t MEM_PTR = 0;
+uint32_t MEM_SIZE = 0;
+uint32_t MEM_POOL = 0;
+uint32_t MEM_POOL_END = 0;
 
 typedef struct mem_entry{
     bool free;
@@ -71,7 +70,7 @@ typedef struct mem_entry{
 void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     multiboot_memory_map_t* mmap;
-    MEM_EARLY_SIZE = mbi->mem_upper;
+    MEM_SIZE = mbi->mem_upper;
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC) goto skip_multiboot;
 
     if(CHECK_FLAG (mbi->flags, 6))
@@ -83,8 +82,8 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
             {
                 if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE && mmap->addr >= (uint32_t) &KERNEL_END)
                 {
-                    MEM_KLUDGE = (uint32_t) &KERNEL_END;
-                    MEM_EARLY_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
+                    MEM_POOL = (uint32_t) &KERNEL_END;
+                    MEM_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
                     break;
                 }
             }
@@ -92,38 +91,37 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
 
 skip_multiboot:
     KERNEL_END = (uint32_t) &KERNEL_END;
-    if(MEM_KLUDGE == 0)
-        MEM_KLUDGE = KERNEL_END;
-    MEM_PTR = MEM_KLUDGE;
-    MEM_KLUDGE_END = MEM_KLUDGE + MEM_EARLY_SIZE;
+    if(MEM_POOL == 0)
+        MEM_POOL = KERNEL_END;
+    MEM_POOL_END = MEM_POOL + MEM_SIZE;
 
     // first marker block
-    uint32_t a_block = MEM_PTR;
+    uint32_t a_block = MEM_POOL;
     ((mem_entry_t*) a_block)->free = false;
-    ((mem_entry_t*) a_block)->prev = MEM_PTR;
-    ((mem_entry_t*) a_block)->ptr = MEM_PTR + sizeof(mem_entry_t);
-    ((mem_entry_t*) a_block)->next = MEM_PTR + sizeof(mem_entry_t);
+    ((mem_entry_t*) a_block)->prev = MEM_POOL;
+    ((mem_entry_t*) a_block)->ptr = MEM_POOL + sizeof(mem_entry_t);
+    ((mem_entry_t*) a_block)->next = MEM_POOL + sizeof(mem_entry_t);
 
     // first entry block
     uint32_t b_block = ((mem_entry_t*) a_block)->next;
     ((mem_entry_t*) b_block)->free = true;
     ((mem_entry_t*) b_block)->prev = a_block;
     ((mem_entry_t*) b_block)->ptr = b_block + sizeof(mem_entry_t);
-    ((mem_entry_t*) b_block)->next = MEM_KLUDGE_END - sizeof(mem_entry_t);
+    ((mem_entry_t*) b_block)->next = MEM_POOL_END - sizeof(mem_entry_t);
 
     // end marker block
     uint32_t c_block = ((mem_entry_t*) b_block)->next;
     ((mem_entry_t*) c_block)->free = false;
     ((mem_entry_t*) c_block)->prev = b_block;
-    ((mem_entry_t*) c_block)->ptr = MEM_KLUDGE_END;
-    ((mem_entry_t*) c_block)->next = MEM_KLUDGE_END;
+    ((mem_entry_t*) c_block)->ptr = MEM_POOL_END;
+    ((mem_entry_t*) c_block)->next = MEM_POOL_END;
 
 //    init_paging();
 }
 
 uint32_t mget_free_block(uint32_t p, size_t size)
 {
-    while(((mem_entry_t*)p)->ptr != MEM_KLUDGE_END)
+    while(((mem_entry_t*)p)->ptr != MEM_POOL_END)
     {
         if(((mem_entry_t*)p)->free && (((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size + (sizeof(mem_entry_t) * 2)) break;
         p = ((mem_entry_t*)p)->next;
@@ -148,16 +146,16 @@ void split_block(uint32_t p, size_t size)
 
 void* malloc_early(size_t size)
 {
-    uint32_t p = MEM_KLUDGE;
+    uint32_t p = MEM_POOL;
     p = mget_free_block(p, size);
-    if(((mem_entry_t*)p)->next == MEM_KLUDGE_END || p == MEM_KLUDGE_END)
+    if(((mem_entry_t*)p)->next == MEM_POOL_END || p == MEM_POOL_END)
     {
         panic("malloc", 0);
         halt();
     }
 
     // split free block
-    if((((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size + (sizeof(mem_entry_t) * 2))
+    if(((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr >= size + (sizeof(mem_entry_t) * 2))
         split_block(p, size);
 
     // choose one of the two if split and mark not free
@@ -174,7 +172,7 @@ void free(void* ptr)
     if(e->ptr == (uint32_t) ptr)
         e->free = true;
     // combine contigeous free blocks
-    /*for(uint32_t p = MEM_KLUDGE, chunk = 0;((mem_entry_t*)p)->next != MEM_KLUDGE_END;p = ((mem_entry_t*)p)->next)
+    /*for(uint32_t p = MEM_POOL, chunk = 0;((mem_entry_t*)p)->next != MEM_POOL_END;p = ((mem_entry_t*)p)->next)
     {
         if(((mem_entry_t*)p)->free)
         {
