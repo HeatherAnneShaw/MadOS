@@ -55,9 +55,9 @@ void init_paging(void)
     I may have stone age memory management while I work on other
     things.
 *******************************************************************/
-uint32_t MEM_SIZE = 0;
 uint32_t MEM_POOL = 0;
 uint32_t MEM_POOL_END = 0;
+uint32_t MEM_POOL_SIZE = 0;
 
 typedef struct mem_entry{
     bool free;
@@ -70,7 +70,7 @@ typedef struct mem_entry{
 void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     multiboot_memory_map_t* mmap;
-    MEM_SIZE = mbi->mem_upper;
+    MEM_POOL_SIZE = mbi->mem_upper;
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC) goto skip_multiboot;
 
     if(CHECK_FLAG (mbi->flags, 6))
@@ -83,7 +83,7 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
                 if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE && mmap->addr >= (uint32_t) &KERNEL_END)
                 {
                     MEM_POOL = (uint32_t) &KERNEL_END;
-                    MEM_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
+                    MEM_POOL_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
                     break;
                 }
             }
@@ -93,7 +93,7 @@ skip_multiboot:
     KERNEL_END = (uint32_t) &KERNEL_END;
     if(MEM_POOL == 0)
         MEM_POOL = KERNEL_END;
-    MEM_POOL_END = MEM_POOL + MEM_SIZE;
+    MEM_POOL_END = MEM_POOL + MEM_POOL_SIZE;
 
     // first marker block
     uint32_t a_block = MEM_POOL;
