@@ -156,8 +156,9 @@ void* malloc_early(size_t size)
         halt();
     }
 
-    // split free block if larger than 
-    split_block(p, size);
+    // split free block
+    if((((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size + (sizeof(mem_entry_t) * 2))
+        split_block(p, size);
 
     // choose one of the two if split and mark not free
     ((mem_entry_t*) p)->free = false;
