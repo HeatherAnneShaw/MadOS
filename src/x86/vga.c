@@ -27,7 +27,7 @@ void video_clear(void)
         for(size_t x = 0; x < video_WIDTH; x++)
         {
             const size_t index = (y * video_WIDTH) + x;
-            video_BUFFER[index] = MAKE_VGAENTRY(' ', video_color);
+            video_BUFFER[index] = MAKE_VGAENTRY(' ', DEFAULT_COLOR);
         }
     }
     video_update_cursor(0, 0);
@@ -779,11 +779,11 @@ void __attribute__((constructor)) init_vga_graphics(void)
 	g_write_pixel = write_pixel4p;
 */
     set_text_mode(1);
-    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_BLACK));
+    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, DEFAULT_BG_COLOR));
     video_clear();
     
     video_writestring(video_INIT_MESSAGE, strlen(video_INIT_MESSAGE));
-    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+    video_setcolor(DEFAULT_COLOR);
 }
 
 

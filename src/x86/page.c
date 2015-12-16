@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <multiboot.h>
+#include <assert.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -117,7 +118,7 @@ skip_multiboot:
     ((mem_entry_t*) c_block)->ptr = MEM_KLUDGE_END;
     ((mem_entry_t*) c_block)->next = MEM_KLUDGE_END;
 
-    init_paging();
+//    init_paging();
 }
 
 uint32_t mget_free_block(uint32_t p, size_t size)
@@ -128,6 +129,21 @@ uint32_t mget_free_block(uint32_t p, size_t size)
         p = ((mem_entry_t*)p)->next;
     }
     return p;
+}
+
+void split_block(uint32_t p, size_t size)
+{
+    mem_entry_t* selected = (mem_entry_t*) p;
+    mem_entry_t* split = (mem_entry_t*) (p + size + sizeof(mem_entry_t));
+    mem_entry_t* end_marker = (mem_entry_t*) ((mem_entry_t*) p)->next;
+
+    split->free = true;
+    split->prev = (uint32_t) selected;
+    split->ptr = (uint32_t) split + sizeof(mem_entry_t);
+    split->next = (uint32_t) end_marker;
+
+    selected->next = (uint32_t) split;
+    end_marker->prev = (uint32_t) split;
 }
 
 void* malloc_early(size_t size)
@@ -141,13 +157,10 @@ void* malloc_early(size_t size)
     }
 
     // split free block if larger than size + sizeof(mem_entry_t) * 2
-    
+    split_block(p, size);
 
     // choose one of the two if split and mark not free
     ((mem_entry_t*) p)->free = false;
-
-    // combine contigeous free blocks
-    
 
     return (void*) ((mem_entry_t*) p)->ptr;
 }
@@ -160,6 +173,8 @@ void free(void* ptr)
     if(e->ptr == (uint32_t) ptr)
     {
         e->free = true;
+        // combine contigeous free blocks, and remove 0 size blocks
+        
     }
 }
 

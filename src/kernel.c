@@ -137,20 +137,20 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             {
                 if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE)
                 {
-                    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_BLACK));
+                    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, DEFAULT_BG_COLOR));
                     printf("AVAILABLE ");
                 }
                 else if(mmap->type == MULTIBOOT_MEMORY_RESERVED)
                 {
-                    video_setcolor(MAKE_COLOR(COLOR_RED, COLOR_BLACK));
+                    video_setcolor(MAKE_COLOR(COLOR_RED, DEFAULT_BG_COLOR));
                     printf("RESERVED  ");
                 }
                 else
                 {
-                    video_setcolor(MAKE_COLOR(COLOR_LIGHT_BROWN, COLOR_BLACK));
+                    video_setcolor(MAKE_COLOR(COLOR_LIGHT_BROWN, DEFAULT_BG_COLOR));
                     printf("UNKNOWN   ");
                 }
-            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+            video_setcolor(DEFAULT_COLOR);
             printf ("-> size = 0x%x, base_addr = 0x%x%x,"
                 " length = 0x%x%x\n",
                 (unsigned) (mmap->size),
@@ -176,11 +176,11 @@ skip_multiboot: ({}); // labels must be part of a statement
             putchar('.');
         }
     }
-    video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREY, COLOR_BLACK));
+    video_setcolor(DEFAULT_COLOR);
     puts("\n");
 
     uint32_t a = malloc(2);
     uint32_t b = malloc(2);
     free(a);
-    printf("%x\n", (a & 0xffffffff), (b & 0xffffffff));
+    printf("%x, %x\n", (a & 0xffffffff), (b & 0xffffffff));
 }
