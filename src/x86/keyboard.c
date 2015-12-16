@@ -38,9 +38,12 @@ bool ctrl = false;
 bool shift = false;
 bool caps_lock = false;
 
+extern void irq_install_handler(int irq, void (*handler)(struct regs *r));
+extern void irq_uninstall_handler(int irq);
+
 volatile unsigned char character;
 /* Handles the keyboard interrupt */
-void keyboard_handler(struct regs *r)
+void keyboard_handler(/*struct regs *r*/)
 {
     unsigned char scancode;
     /* Read from the keyboard's data buffer */
@@ -107,7 +110,6 @@ unsigned char keyboard_getch(void)
     return character;
 }
 
-extern void irq_install_handler(int irq, void (*handler)(struct regs *r));
 extern unsigned char (*getch) (void);
 void __attribute__((constructor)) keyboard_install()
 {

@@ -8,30 +8,30 @@ EXTRA = shell.o
 
 all:
 	# libk
-	gcc $(CFLAGS) -c stdlib.c -o stdlib.o
-	gcc $(CFLAGS) -c string.c -o string.o
-	gcc $(CFLAGS) -c madstd.c -o madstd.o
-	gcc $(CFLAGS) -c stdio.c -o stdio.o
+	gcc $(CFLAGS) -Werror -c stdlib.c -o stdlib.o
+	gcc $(CFLAGS) -Werror -c string.c -o string.o
+	gcc $(CFLAGS) -Werror -c madstd.c -o madstd.o
+	gcc $(CFLAGS) -Werror -c stdio.c -o stdio.o
 	
 	# kernel
 	nasm -f elf32 x86/boot.s -o boot.o
-	gcc $(CFLAGS) -c kernel.c -o kernel.o
+	gcc $(CFLAGS)  -Werror -c kernel.c -o kernel.o
 
 	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
-	gcc $(CFLAGS) -c x86/port.c -o port.o
+	gcc $(CFLAGS) -Werror -c x86/port.c -o port.o
 	gcc $(CFLAGS) -c x86/vga.c -o video.o
-	gcc $(CFLAGS) -c x86/keyboard.c -o keyboard.o
-	gcc $(CFLAGS) -c x86/timer.c -o timer.o
-	gcc $(CFLAGS) -c x86/page.c -o page.o
+	gcc $(CFLAGS) -Werror -c x86/keyboard.c -o keyboard.o
+	gcc $(CFLAGS) -Werror -c x86/timer.c -o timer.o
+	gcc $(CFLAGS) -Werror -c x86/page.c -o page.o
 	
-	gcc $(CFLAGS) -c x86/idt.c -o idt.o
-	gcc $(CFLAGS) -c x86/page.c -o page.o
-	gcc $(CFLAGS) -c x86/isr.c -o isr.o
-	gcc $(CFLAGS) -c x86/irq.c -o irq.o
+	gcc $(CFLAGS) -Werror -c x86/idt.c -o idt.o
+	gcc $(CFLAGS) -Werror -c x86/page.c -o page.o
+	gcc $(CFLAGS) -Werror -c x86/isr.c -o isr.o
+	gcc $(CFLAGS) -Werror -c x86/irq.c -o irq.o
 	
 	# extra
-	gcc $(CFLAGS) -c extra/shell.c -o shell.o
+	gcc $(CFLAGS) -Werror -c extra/shell.c -o shell.o
 
 	# fonts
 #	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o

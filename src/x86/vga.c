@@ -744,30 +744,6 @@ void set_text_mode(int hi_res)
 	for(unsigned int i = 0; i < video_WIDTH * video_HEIGHT; i++)
 		pokeb(0xB800, i * 2 + 1, 7);
 }
-/*****************************************************************************
-*****************************************************************************/
-static unsigned char reverse_bits(unsigned char arg)
-{
-	unsigned char ret_val = 0;
-
-	if(arg & 0x01)
-		ret_val |= 0x80;
-	if(arg & 0x02)
-		ret_val |= 0x40;
-	if(arg & 0x04)
-		ret_val |= 0x20;
-	if(arg & 0x08)
-		ret_val |= 0x10;
-	if(arg & 0x10)
-		ret_val |= 0x08;
-	if(arg & 0x20)
-		ret_val |= 0x04;
-	if(arg & 0x40)
-		ret_val |= 0x02;
-	if(arg & 0x80)
-		ret_val |= 0x01;
-	return ret_val;
-}
 
 
 void __attribute__((constructor)) init_vga_graphics(void)
