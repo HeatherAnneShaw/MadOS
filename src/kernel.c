@@ -162,9 +162,34 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
 skip_multiboot: ({}); // labels must be part of a statement
+
+    char* a = malloc(4);
+    memset(a, 'A', 3);
+    a[3] = 0;
+
+    char* b = malloc(2);
+    memset(b, 'B', 1);
+    b[1] = 0;
+
+    char* c = malloc(2);
+    memset(c, 'C', 1);
+    c[1] = 0;
+
+    char* d = malloc(2);
+    memset(d, 'D', 1);
+    d[1] = 0;
+
+    extern void print_memory_blocks(void);
+    putch('\n');
+    print_memory_blocks();puts(" -> a[4] = \"AAA\", b[2] = \"B\", c[2] = \"C\", d[2] = \"D\"");
+    free(d);print_memory_blocks();puts(" -> free(d)");
+    free(b);print_memory_blocks();puts(" -> free(b)");
+    free(c);print_memory_blocks();puts(" -> free(c)");
+    free(a);print_memory_blocks();puts(" -> free(a)");
+
     char* p;
     unsigned int counter = 0;
-    puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
+    puts("\nAllocating / freeing 80MB in 1KB blocks to test memory manager stability:\n");
     while(counter < 1024 * 80)
     {
         p = malloc(1024);
@@ -178,13 +203,11 @@ skip_multiboot: ({}); // labels must be part of a statement
     }
     video_setcolor(DEFAULT_COLOR);
     puts("\n");
-    void* a = malloc(4);
-    free(a);
-    void* b = malloc(2);
-    void* c = malloc(2);
-    void* d = malloc(2);
-
-    printf("%x, %x, %x, %x\n", &a, &b, &c, &d);
-    extern void print_memory_blocks(void);
-    print_memory_blocks();
+    
+    d = malloc(10);
+    memset(d, 'D', 9);
+    d[9] = 0;
+    print_memory_blocks();puts(" -> d[10] = \"DDDDDDDDD\"");
+    printf("\na = \"%s\"\n\n", a);
+    free(d);print_memory_blocks();puts(" -> free(d)");
 }

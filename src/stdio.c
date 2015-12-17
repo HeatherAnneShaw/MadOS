@@ -47,19 +47,40 @@ int puts(const char* s)
 }
 
 
-char* __printf_f_s(char* p){ return p; }
+char* __printf_f_s(char* p)
+{
+    return p;
+}
 char* __printf_f_c(char p)
 {
     char* o = malloc(2);
     o[0] = p;
     o[1] = 0;
+    free(o);
     return o;
 }
-char* __printf_f_i(void* p){ return itoa((int) p, 10, true); }
-char* __printf_f_d(void* p){ return itoa((int) p, 10, true); }
-char* __printf_f_u(void* p){ return itoa((unsigned int) p, 10, false); }
-char* __printf_f_x(void* p){ return itoa((unsigned int) p, 16, false); }
-char* __printf_f_b(void* p){ return itoa((unsigned int) p, 2, false); }
+
+char* __printf_f_i(void* p)
+{
+    return itoa((int) p, 10, true);
+}
+
+char* __printf_f_d(void* p)
+{
+    return itoa((int) p, 10, true);
+}
+char* __printf_f_u(void* p)
+{
+    return itoa((unsigned int) p, 10, false);
+}
+char* __printf_f_x(void* p)
+{
+    return itoa((unsigned int) p, 16, false);
+}
+char* __printf_f_b(void* p)
+{
+    return itoa((unsigned int) p, 2, false);
+}
 
 char format_flags[25] = "sciduxb";
 char* (*printf_fun_array[25]) (void*) = {
@@ -105,7 +126,6 @@ int sprintf(char* str, const char* __restrict format, ...)
                     char* out = printf_fun_array[cpos(format_flags, format[i])](p);
                     for(c = 0;out[c] != null;c++, ccount++)
                         str[ccount] = out[c];
-                    free(out);
                 }
                 else
                 {
@@ -142,7 +162,6 @@ int fprintf(FILE* stream, const char* __restrict format, ...)
                     p = (void*) va_arg(argp, void*);
                     char* out = printf_fun_array[cpos(format_flags, format[i])](p);
                     ccount += fwrite(out, sizeof(char), strlen(out), stream);
-                    free(out);
                 }
                 else
                 {

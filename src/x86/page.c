@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <multiboot.h>
-#include <assert.h>
 #include <video.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -50,7 +49,6 @@ void init_paging(void)
         (unsigned) page_dir_ptr_tab, (unsigned) page_directory, (unsigned) page_table);
 }
 
-
 /*****************************************
     Flat memory manager from scratch :D
 *****************************************/
@@ -89,99 +87,47 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
 
 skip_multiboot:
-    KERNEL_END = (uint32_t) &KERNEL_END;
     if(MEM_POOL == 0)
-        MEM_POOL = KERNEL_END;
+        MEM_POOL = (uint32_t) &KERNEL_END;
     MEM_POOL_END = MEM_POOL + MEM_POOL_SIZE;
 
     // first marker block
-    uint32_t a_block = MEM_POOL;
-    ((mem_entry_t*) a_block)->free = false;
-    ((mem_entry_t*) a_block)->prev = MEM_POOL;
-    ((mem_entry_t*) a_block)->ptr = MEM_POOL + sizeof(mem_entry_t);
-    ((mem_entry_t*) a_block)->next = MEM_POOL + sizeof(mem_entry_t);
+    mem_entry_t* a_block =(mem_entry_t*) MEM_POOL;
+    a_block->free = false;
+    a_block->prev = MEM_POOL;
+    a_block->ptr = MEM_POOL + sizeof(mem_entry_t);
+    a_block->next = MEM_POOL + sizeof(mem_entry_t);
 
     // first entry block
-    uint32_t b_block = ((mem_entry_t*) a_block)->next;
-    ((mem_entry_t*) b_block)->free = true;
-    ((mem_entry_t*) b_block)->prev = a_block;
-    ((mem_entry_t*) b_block)->ptr = b_block + sizeof(mem_entry_t);
-    ((mem_entry_t*) b_block)->next = MEM_POOL_END - sizeof(mem_entry_t);
+    mem_entry_t* b_block = (mem_entry_t*) a_block->next;
+    b_block->free = true;
+    b_block->prev = (uint32_t) a_block;
+    b_block->ptr = (uint32_t) b_block + sizeof(mem_entry_t);
+    b_block->next = MEM_POOL_END - sizeof(mem_entry_t);
 
     // end marker block
-    uint32_t c_block = ((mem_entry_t*) b_block)->next;
-    ((mem_entry_t*) c_block)->free = false;
-    ((mem_entry_t*) c_block)->prev = b_block;
-    ((mem_entry_t*) c_block)->ptr = MEM_POOL_END;
-    ((mem_entry_t*) c_block)->next = MEM_POOL_END;
+    mem_entry_t* c_block = (mem_entry_t*) b_block->next;
+    c_block->free = false;
+    c_block->prev = (uint32_t) b_block;
+    c_block->ptr = MEM_POOL_END;
+    c_block->next = MEM_POOL_END;
 
 //    init_paging();
 }
 
-uint32_t mget_free_block(uint32_t p, size_t size)
+
+void combine_free_blocks()
 {
-    while(((mem_entry_t*)p)->ptr != MEM_POOL_END)
-    {
-        if(((mem_entry_t*)p)->free && (((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size + (sizeof(mem_entry_t) * 2)) break;
-        p = ((mem_entry_t*)p)->next;
-    }
-    return p;
-}
-
-void split_block(uint32_t p, size_t size)
-{
-    mem_entry_t* selected = (mem_entry_t*) p;
-    mem_entry_t* split = (mem_entry_t*) (p + size + sizeof(mem_entry_t));
-    mem_entry_t* end_marker = (mem_entry_t*) ((mem_entry_t*) p)->next;
-
-    split->free = true;
-    split->prev = (uint32_t) selected;
-    split->ptr = (uint32_t) split + sizeof(mem_entry_t);
-    split->next = (uint32_t) end_marker;
-
-    selected->next = (uint32_t) split;
-    end_marker->prev = (uint32_t) split;
-}
-
-void* malloc_early(size_t size)
-{
-    uint32_t p = MEM_POOL;
-    p = mget_free_block(p, size);
-    if(((mem_entry_t*)p)->next == MEM_POOL_END || p == MEM_POOL_END)
-    {
-        panic("malloc", 0);
-        halt();
-    }
-
-    // split free block
-    if(((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr >= size + (sizeof(mem_entry_t) * 2))
-        split_block(p, size);
-
-    // choose one of the two if split and mark not free
-    ((mem_entry_t*) p)->free = false;
-
-    return (void*) ((mem_entry_t*) p)->ptr;
-}
-
-malloc_t* malloc = malloc_early;
-
-void free(void* ptr)
-{
-    mem_entry_t* e = ptr - sizeof(mem_entry_t);
-    if(e->ptr == (uint32_t) ptr)
-        e->free = true;
-
     // combine contigeous free blocks
     for(uint32_t p = MEM_POOL;((mem_entry_t*)p)->next != MEM_POOL_END;p = ((mem_entry_t*)p)->next)
     {
         if(((mem_entry_t*)p)->free)
         {
-            mem_entry_t* c = (mem_entry_t*) p;
-            for(int count = 0;;c = (mem_entry_t*) c->next, count++)
+            for(mem_entry_t* c = (mem_entry_t*) p;;c = (mem_entry_t*) c->next)
             {
                 if(! c->free)
                 {
-                    if(count > 1)
+                    if(c->prev != p)
                     {
                         ((mem_entry_t*)p)->next = (uint32_t) c;
                         c->prev = p;
@@ -195,6 +141,62 @@ void free(void* ptr)
 }
 
 
+uint32_t mget_free_block(uint32_t p, size_t size)
+{
+    combine_free_blocks();
+    while(((mem_entry_t*)p)->ptr != MEM_POOL_END)
+    {
+        if(((mem_entry_t*)p)->free && (((mem_entry_t*)p)->next - ((mem_entry_t*)p)->ptr) >= size) break;
+        p = ((mem_entry_t*)p)->next;
+    }
+    return p;
+}
+
+void split_block(uint32_t p, size_t size)
+{
+    mem_entry_t* selected = (mem_entry_t*) p;
+    mem_entry_t* split = (mem_entry_t*) (p + sizeof(mem_entry_t) + size);
+    mem_entry_t* end_marker = (mem_entry_t*) ((mem_entry_t*) p)->next;
+
+    split->free = true;
+    split->prev = (uint32_t) selected;
+    split->ptr = (uint32_t) split + sizeof(mem_entry_t);
+    split->next = (uint32_t) end_marker;
+
+    selected->next = (uint32_t) split;
+    end_marker->prev = (uint32_t) split;
+}
+
+void* malloc_flat(size_t size)
+{
+    mem_entry_t* p = (mem_entry_t*) MEM_POOL;
+    p = (mem_entry_t*) mget_free_block((uint32_t) p, size);
+    if(p->next == (uint32_t) MEM_POOL_END || (uint32_t) p == MEM_POOL_END)
+    {
+        panic("malloc", 0);
+        halt();
+    }
+
+    // split free block
+    if(p->next - p->ptr >= size + (sizeof(mem_entry_t) * 2))
+        split_block((uint32_t) p, size);
+
+    // choose one of the two if split and mark not free
+    p->free = false;
+
+    return (void*) p->ptr;
+}
+
+malloc_t* malloc = malloc_flat;
+
+void free(void* ptr)
+{
+    mem_entry_t* e = ptr - sizeof(mem_entry_t);
+    if(e->ptr == (uint32_t) ptr)
+        e->free = true;
+}
+
+
 void print_memory_blocks(void)
 {
     unsigned int free = 0, reserved = 0;
@@ -202,18 +204,17 @@ void print_memory_blocks(void)
     {
         if(p->free)
         {
-            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
+            video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_GREEN));
             putchar('F');
             free++;
         }
         else
         {
-            video_setcolor(MAKE_COLOR(COLOR_RED, COLOR_RED));
-            putchar('X');
+            video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_RED));
+            putchar('R');
             reserved++;
         }
     }
     video_setcolor(DEFAULT_COLOR);
-    printf("\nfree: %i\nreserved: %i\ntotal: %i\n", free, reserved, free + reserved);
 }
 
