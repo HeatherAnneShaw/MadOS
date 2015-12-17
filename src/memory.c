@@ -29,6 +29,7 @@ typedef struct mem_entry{
     uint32_t next;
 } mem_entry_t;
 
+bool thread = false;
 
 void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
@@ -132,6 +133,8 @@ void split_block(uint32_t p, size_t size)
 
 void* malloc_flat(size_t size)
 {
+    while(thread); // if there is another memory allocation happening....
+    thread = true;
     mem_entry_t* p = (mem_entry_t*) MEM_POOL;
     p = (mem_entry_t*) mget_free_block((uint32_t) p, size);
     if(p->next == (uint32_t) MEM_POOL_END || (uint32_t) p == MEM_POOL_END)
@@ -147,6 +150,7 @@ void* malloc_flat(size_t size)
     // choose one of the two if split and mark not free
     p->free = false;
 
+    thread = false;  // end thread safety
     return (void*) p->ptr;
 }
 
