@@ -1,2 +1,2 @@
 # MadOS
-![Alt text](http://i.imgur.com/vXV2OUS.png)
+![Alt text](http://imgur.com/HrQ1seP.png)

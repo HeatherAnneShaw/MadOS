@@ -1,6 +1,12 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// THE SCOTCH-WARE LICENSE (Revision 0):
+// <aaronryool/gmail.com> wrote this file. As long as you retain this notice you
+// can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a shot of scotch in return
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __VGA_H__
-#define __VGA_H__
+#ifndef __VIDEO_H__
+#define __VIDEO_H__
 
 #include <stddef.h>
 #include <stdint.h>
@@ -24,6 +30,10 @@
 
 #define MAKE_COLOR(fg, bg) (fg | bg << 4)
 #define MAKE_VGAENTRY(c, color) ((uint16_t) c | (uint16_t) color << 8)
+
+#define DEFAULT_BG_COLOR COLOR_BLACK
+#define DEFAULT_FG_COLOR COLOR_LIGHT_GREY
+#define DEFAULT_COLOR MAKE_COLOR(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR)
 
 typedef struct cursor_pos {
     int x;
