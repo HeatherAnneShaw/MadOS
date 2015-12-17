@@ -164,20 +164,16 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 skip_multiboot: ({}); // labels must be part of a statement
 
     char* a = malloc(4);
-    memset(a, 'A', 3);
-    a[3] = 0;
+    strcpy("AAA", a);
 
     char* b = malloc(2);
-    memset(b, 'B', 1);
-    b[1] = 0;
+    strcpy("B", b);
 
     char* c = malloc(2);
-    memset(c, 'C', 1);
-    c[1] = 0;
+    strcpy("C", c);
 
     char* d = malloc(2);
-    memset(d, 'D', 1);
-    d[1] = 0;
+    strcpy("D", d);
 
     extern void print_memory_blocks(void);
     putch('\n');
