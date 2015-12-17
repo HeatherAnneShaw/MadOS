@@ -86,10 +86,16 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         for(i = 0, mod = (multiboot_module_t *) mbi->mods_addr;
                 i < (int) mbi->mods_count;
                 i++, mod++)
-            printf(" mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
-                (unsigned) mod->mod_start,
-                (unsigned) mod->mod_end,
-                (char *) mod->cmdline);
+                {
+                    printf(" mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
+                        (unsigned) mod->mod_start,
+                        (unsigned) mod->mod_end,
+                        (char *) mod->cmdline);
+                    // If commandline extension is *.img, this is an ext2
+                    // file system, if its *.o its a module
+                    for(uint32_t i = 0;i < (mod->mod_end - mod->mod_start);i++)
+                        putch(((char*) mod->mod_start)[i]);
+                }
     }
      
     // Bits 4 and 5 are mutually exclusive! 
@@ -163,47 +169,6 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
 skip_multiboot: ({}); // labels must be part of a statement
 
-    char* a = malloc(4);
-    strcpy("AAA", a);
-
-    char* b = malloc(2);
-    strcpy("B", b);
-
-    char* c = malloc(2);
-    strcpy("C", c);
-
-    char* d = malloc(2);
-    strcpy("D", d);
-
     extern void print_memory_blocks(void);
-    putch('\n');
-    print_memory_blocks();puts(" -> a[4] = \"AAA\", b[2] = \"B\", c[2] = \"C\", d[2] = \"D\"");
-    free(d);print_memory_blocks();puts(" -> free(d)");
-    free(b);print_memory_blocks();puts(" -> free(b)");
-    free(c);print_memory_blocks();puts(" -> free(c)");
-    free(a);print_memory_blocks();puts(" -> free(a)");
-
-    char* p;
-    unsigned int counter = 0;
-    puts("\nAllocating / freeing 80MB in 1KB blocks to test memory manager stability:\n");
-    while(counter < 1024 * 80)
-    {
-        p = malloc(1024);
-        memset(p, 'X', 1024);
-        free(p);
-        if(++counter % 1024 == 0)
-        {
-            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
-            putchar('.');
-        }
-    }
-    video_setcolor(DEFAULT_COLOR);
-    puts("\n");
-    
-    d = malloc(10);
-    memset(d, 'D', 9);
-    d[9] = 0;
-    print_memory_blocks();puts(" -> d[10] = \"DDDDDDDDD\"");
-    printf("\na = \"%s\"\n\n", a);
-    free(d);print_memory_blocks();puts(" -> free(d)");
+    print_memory_blocks();puts("\n");
 }

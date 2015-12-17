@@ -162,7 +162,6 @@ void free(void* ptr)
 
 void print_memory_blocks(void)
 {
-    unsigned int free = 0, reserved = 0;
     for(mem_entry_t* p = (mem_entry_t*)((mem_entry_t*) MEM_POOL)->next;p->next != MEM_POOL_END;p = (mem_entry_t*) p->next)
     {
         if(p->free)

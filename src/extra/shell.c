@@ -84,6 +84,7 @@ void debug_command(char* command_string)
                 command_list[i].function(count, commandv);
                 return;
             }
+            // if in file path
             else if(strcmp(commandv[0], "help") == 0 || commandv[0][0] == '?')
             {
                 if(strcmp(command_list[i].command, commandv[1]) == 0)

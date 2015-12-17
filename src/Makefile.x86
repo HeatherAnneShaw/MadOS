@@ -1,6 +1,6 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ	= kernel boot.o kernel.o memory.o
+OBJ	= kernel boot.o kernel.o memory.o ramdisk.o
 FONTS = c64-8.o terminus-16.o
 DRIVERS = tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
@@ -17,6 +17,7 @@ all:
 	nasm -f elf32 x86/boot.s -o boot.o
 	gcc $(CFLAGS)  -Werror -c kernel.c -o kernel.o
 	gcc $(CFLAGS) -Werror -c memory.c -o memory.o
+	gcc $(CFLAGS) -Werror -c ramdisk.c -o ramdisk.o
 
 	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
@@ -47,7 +48,7 @@ all:
 
 test:
 	cp kernel ../os/kernel
-	qemu-system-i386 -m 1024 -kernel ../os/kernel -append debug -hda ../os/mados.img
+	qemu-system-i386 -m 1024 -kernel ../os/kernel -append "debug path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/initrd.img -hda ../os/mados.img
 
 clean:
 	rm *.o
