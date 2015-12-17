@@ -18,7 +18,6 @@
 extern uint32_t KERNEL_END;
 extern void halt(void);
 
-
 uint32_t MEM_POOL = 0;
 uint32_t MEM_POOL_END = 0;
 uint32_t MEM_POOL_SIZE = 0;
@@ -46,7 +45,6 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
             {
                 if(mmap->type == MULTIBOOT_MEMORY_AVAILABLE && mmap->addr >= (uint32_t) &KERNEL_END)
                 {
-                    MEM_POOL = (uint32_t) &KERNEL_END;
                     MEM_POOL_SIZE = (uint32_t) mmap->len - (mmap->addr - (uint32_t) &KERNEL_END);
                     break;
                 }
@@ -54,8 +52,7 @@ void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
 
 skip_multiboot:
-    if(MEM_POOL == 0)
-        MEM_POOL = (uint32_t) &KERNEL_END;
+    MEM_POOL = (uint32_t) &KERNEL_END;
     MEM_POOL_END = MEM_POOL + MEM_POOL_SIZE;
 
     // first marker block
