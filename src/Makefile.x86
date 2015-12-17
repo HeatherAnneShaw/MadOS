@@ -46,7 +46,8 @@ all:
 	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FONTS) $(LIBK) $(DRIVERS) $(EXTRA)
 
 test:
-	qemu-system-i386 -kernel kernel -append debug -m 1024
+	cp kernel ../os/kernel
+	qemu-system-i386 -m 1024 -kernel ../os/kernel -append debug -hda ../os/mados.img
 
 clean:
 	rm *.o
