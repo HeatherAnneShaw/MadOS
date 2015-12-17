@@ -169,13 +169,11 @@ void print_memory_blocks(void)
         {
             video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_GREEN));
             putchar('F');
-            free++;
         }
         else
         {
             video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_RED));
             putchar('R');
-            reserved++;
         }
     }
     video_setcolor(DEFAULT_COLOR);
