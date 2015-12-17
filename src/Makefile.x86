@@ -1,4 +1,7 @@
 
+AS = nasm
+AFLAGS = -f elf32
+
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
 OBJ	= kernel boot.o kernel.o memory.o ramdisk.o
 FONTS = c64-8.o terminus-16.o
@@ -14,7 +17,7 @@ all:
 	gcc $(CFLAGS) -Werror -c stdio.c -o stdio.o
 	
 	# kernel
-	nasm -f elf32 x86/boot.s -o boot.o
+	$(AS) $(AFLAGS) x86/boot.s -o boot.o
 	gcc $(CFLAGS)  -Werror -c kernel.c -o kernel.o
 	gcc $(CFLAGS) -Werror -c memory.c -o memory.o
 	gcc $(CFLAGS) -Werror -c ramdisk.c -o ramdisk.o
@@ -26,10 +29,16 @@ all:
 	gcc $(CFLAGS) -Werror -c x86/keyboard.c -o keyboard.o
 	gcc $(CFLAGS) -Werror -c x86/timer.c -o timer.o
 	
+    # descriptor tables
 	gcc $(CFLAGS) -Werror -c x86/idt.c -o idt.o
 	gcc $(CFLAGS) -Werror -c x86/isr.c -o isr.o
 	gcc $(CFLAGS) -Werror -c x86/irq.c -o irq.o
-	
+
+	# executable formats
+	gcc $(CFLAGS) -Werror -c exec/elf.c -o elf.o
+	$(AS) -f bin exec/elf32.s -o exec/elf32
+	cp exec/elf32 ../os/init.elf
+
 	# extra
 	gcc $(CFLAGS) -Werror -c extra/shell.c -o shell.o
 
@@ -48,7 +57,7 @@ all:
 
 test:
 	cp kernel ../os/kernel
-	qemu-system-i386 -m 1024 -kernel ../os/kernel -append "debug path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/initrd.img -hda ../os/mados.img
+	qemu-system-i386 -m 1024 -kernel ../os/kernel -append "debug path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/init.elf -hda ../os/mados.img
 
 clean:
 	rm *.o
