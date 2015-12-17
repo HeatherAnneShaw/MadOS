@@ -7,28 +7,22 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <multiboot.h>
 #include <video.h>
+
+#include <memory.h>
+#include <shell.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
 /*****************************************
     Flat memory manager from scratch :D
 *****************************************/
-extern uint32_t KERNEL_END;
-extern void halt(void);
 
 uint32_t MEM_POOL = 0;
 uint32_t MEM_POOL_END = 0;
 uint32_t MEM_POOL_SIZE = 0;
-
-typedef struct mem_entry{
-    bool free;
-    uint32_t prev;
-    uint32_t ptr;
-    uint32_t next;
-} mem_entry_t;
-
 
 void mem_initialize(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
@@ -75,7 +69,6 @@ skip_multiboot:
     c_block->prev = (uint32_t) b_block;
     c_block->ptr = MEM_POOL_END;
     c_block->next = MEM_POOL_END;
-
 }
 
 
@@ -146,6 +139,7 @@ void* malloc_flat(size_t size)
 
     // choose one of the two if split and mark not free
     p->free = false;
+    p->type = PTR;
 
     return (void*) p->ptr;
 }
@@ -162,6 +156,7 @@ void free(void* ptr)
 
 void print_memory_blocks(void)
 {
+    puts("Memory map:\n");
     for(mem_entry_t* p = (mem_entry_t*)((mem_entry_t*) MEM_POOL)->next;p->next != MEM_POOL_END;p = (mem_entry_t*) p->next)
     {
         if(p->free)
@@ -171,10 +166,36 @@ void print_memory_blocks(void)
         }
         else
         {
-            video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_RED));
-            putchar('R');
+            if(p->type == STR)
+            {
+                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_CYAN));
+                putchar('S');
+            }
+            else if(p->type == PTR)
+            {
+                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_MAGENTA));
+                putchar('P');
+            }
+            else if(p->type == EXE)
+            {
+                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_BROWN));
+                putchar('E');
+            }
+            else if(p->type == FS)
+            {
+                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_RED));
+                putchar('F');
+            }
         }
     }
     video_setcolor(DEFAULT_COLOR);
+    puts("\n");
 }
 
+static char name[] = "map\x00";
+static char desc[] = "Print out kernel memory map\x00";
+
+static void __attribute__((constructor)) add_command(void)
+{
+    register_shell_command(name, (void*) print_memory_blocks, desc);
+}

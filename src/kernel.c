@@ -15,6 +15,7 @@
 
 #include <module.h>
 #include <video.h>
+#include <exec.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -61,22 +62,22 @@ void __fini(void)
         (*__fini_array_start[i])();
 }
 
+#include <elf.h>
+extern bool is_elf(Elf32_Ehdr* header);
+
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
     {
         goto skip_multiboot;
     }
-    
-    printf("flags = 0b%b\n", (unsigned) mbi->flags);
-     
+
     // Is boot_device valid? 
     if(CHECK_FLAG(mbi->flags, 1))
-        printf("boot_device = 0x%x\n", (unsigned) mbi->boot_device);    
-        
+        printf("\nboot_device = 0x%x\n", (unsigned) mbi->boot_device);    
     // Is the command line passed? 
     if(CHECK_FLAG(mbi->flags, 2))
-        printf("cmdline = %s\n", (char*) mbi->cmdline);
+        printf("\ncmdline = %s\n", (char*) mbi->cmdline);
      
     // Are mods_* valid? 
     if(CHECK_FLAG(mbi->flags, 3))
@@ -84,20 +85,35 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         multiboot_module_t *mod;
            
         int i;
-        printf("mods_count = %i, mods_addr = 0x%x\n",
+        printf("\nmods_count = %i, mods_addr = 0x%x\n",
             (int) mbi->mods_count, (int) mbi->mods_addr);
         for(i = 0, mod = (multiboot_module_t *) mbi->mods_addr;
                 i < (int) mbi->mods_count;
                 i++, mod++)
                 {
-                    printf(" mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
-                        (unsigned) mod->mod_start,
-                        (unsigned) mod->mod_end,
-                        (char *) mod->cmdline);
-                    // If commandline extension is *.img, this is an ext2
-                    // file system, if its *.o its a module
-                    for(uint32_t i = 0;i < (mod->mod_end - mod->mod_start);i++)
-                        putch(((char*) mod->mod_start)[i]);
+                    // detect module type
+                    unsigned place;
+                    for(place = 0;place < registered_exec_handlers;place++)
+                    {
+                        if(exec_table[i]->is_type((void*) mod->mod_start))
+                            break;
+                    }
+                    if(place == registered_exec_handlers)
+                    {
+                        printf("type = UNKNOWN, mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
+                            (unsigned) mod->mod_start,
+                            (unsigned) mod->mod_end,
+                            (char *) mod->cmdline);
+                    }
+                    else
+                    {
+                        // load module with appropriate handler
+                        printf("type = %s, mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
+                            exec_table[place]->name,
+                            (unsigned) mod->mod_start,
+                            (unsigned) mod->mod_end,
+                            (char *) mod->cmdline);
+                    }
                 }
     }
     if(CHECK_FLAG(mbi->flags, 0))
@@ -143,6 +159,4 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
 skip_multiboot: ({}); // labels must be part of a statement
 
-    extern void print_memory_blocks(void);
-    print_memory_blocks();puts("\n");
 }

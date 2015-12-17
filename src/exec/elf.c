@@ -5,10 +5,9 @@
 // this stuff is worth it, you can buy me a shot of scotch in return
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <stddef.h>
-#include <stdint.h>
-#include <multiboot.h>
-
+#include <exec.h>
+#include <memory.h>
+#include <elf.h>
 
 /*
 typedef struct
@@ -41,4 +40,30 @@ typedef struct
   Elf32_Word	p_align;		 Segment alignment 
 } Elf32_Phdr;
 */
+
+
+bool is_elf(Elf32_Ehdr* header)
+{
+    return (header->e_ident[0] == 0x7f && header->e_ident[1] == 'E') && header->e_ident[2] == 'L'  && header->e_ident[3] == 'F'?
+       true : false;
+}
+
+static char name[] = "ELF";
+
+
+
+void __attribute__((constructor)) init_elf()
+{
+    // set up executable format descriptor
+    puts("Registered ELF executable format.");
+    exec_entry_t* elf = malloc(sizeof(exec_entry_t));
+    elf->is_type = (void*) is_elf;
+    elf->name = name;
+
+    // set up memory region for format specifier
+    mem_entry_t* p = (void*) elf - sizeof(mem_entry_t);
+    p->type = STR;
+    register_exec(elf);
+}
+
 

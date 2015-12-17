@@ -7,6 +7,7 @@ OBJ	= kernel boot.o kernel.o memory.o ramdisk.o
 FONTS = c64-8.o terminus-16.o
 DRIVERS = tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
+EXEC = exec.o elf.o
 EXTRA = shell.o
 
 all:
@@ -35,12 +36,13 @@ all:
 	gcc $(CFLAGS) -Werror -c x86/irq.c -o irq.o
 
 	# executable formats
+	gcc $(CFLAGS) -Werror -c exec/exec.c -o exec.o
 	gcc $(CFLAGS) -Werror -c exec/elf.c -o elf.o
 	$(AS) -f bin exec/elf32.s -o exec/elf32
 	cp exec/elf32 ../os/init.elf
 
 	# extra
-	gcc $(CFLAGS) -Werror -c extra/shell.c -o shell.o
+	gcc $(CFLAGS) -Werror -c shell.c -o shell.o
 
 	# fonts
 #	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
@@ -53,11 +55,11 @@ all:
 #	gcc $(CFLAGS) -c x86/fonts/matrix-16.c -o matrix-16.o
 
 	# link it on up
-	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FONTS) $(LIBK) $(DRIVERS) $(EXTRA)
+	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(EXTRA) $(FONTS) $(LIBK) $(EXEC) $(DRIVERS)
 
 test:
 	cp kernel ../os/kernel
-	qemu-system-i386 -m 1024 -kernel ../os/kernel -append "debug path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/init.elf -hda ../os/mados.img
+	qemu-system-i386 -m 1024 -kernel ../os/kernel -append "path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/init.elf -hda ../os/mados.img
 
 clean:
 	rm *.o
