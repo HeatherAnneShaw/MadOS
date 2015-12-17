@@ -50,11 +50,9 @@ void init_paging(void)
 }
 
 
-/******************************************************************
-    This malloc / free implementation is just temporary so that
-    I may have stone age memory management while I work on other
-    things.
-*******************************************************************/
+/*****************************************
+    Flat memory manager from scratch :D
+*****************************************/
 uint32_t MEM_POOL = 0;
 uint32_t MEM_POOL_END = 0;
 uint32_t MEM_POOL_SIZE = 0;
