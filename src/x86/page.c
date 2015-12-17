@@ -171,16 +171,41 @@ void free(void* ptr)
     mem_entry_t* e = ptr - sizeof(mem_entry_t);
     if(e->ptr == (uint32_t) ptr)
         e->free = true;
+
     // combine contigeous free blocks
-    /*for(uint32_t p = MEM_POOL, chunk = 0;((mem_entry_t*)p)->next != MEM_POOL_END;p = ((mem_entry_t*)p)->next)
+    for(uint32_t p = MEM_POOL;((mem_entry_t*)p)->next != MEM_POOL_END;p = ((mem_entry_t*)p)->next)
     {
         if(((mem_entry_t*)p)->free)
         {
-            chunk = p;
-            
+            mem_entry_t* c = (mem_entry_t*) p;
+            for(int count = 0;;c = (mem_entry_t*) c->next, count++)
+            {
+                if(! c->free)
+                {
+                    if(count > 1)
+                    {
+                        ((mem_entry_t*)p)->next = (uint32_t) c;
+                        c->prev = p;
+                    }
+                    else break;
+                }
+                if(c->next == MEM_POOL_END) break;
+            }
         }
-    }*/
+    }
 }
 
 
+void print_memory_blocks(void)
+{
+    unsigned int free = 0, reserved = 0;
+    for(mem_entry_t* p = (mem_entry_t*)((mem_entry_t*) MEM_POOL)->next;p->next != MEM_POOL_END;p = (mem_entry_t*) p->next)
+    {
+        if(p->free)
+            free++;
+        else
+            reserved++;
+    }
+    printf("free: %i\nreserved: %i\ntotal: %i\n", free, reserved, free + reserved);
+}
 

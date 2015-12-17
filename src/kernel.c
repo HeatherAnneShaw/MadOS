@@ -162,7 +162,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
 skip_multiboot: ({}); // labels must be part of a statement
-/*    char* p;
+    char* p;
     unsigned int counter = 0;
     puts("\nAllocating / freeing 80MB to test memory manager stability:\n");
     while(counter < 1024 * 80)
@@ -178,11 +178,7 @@ skip_multiboot: ({}); // labels must be part of a statement
     }
     video_setcolor(DEFAULT_COLOR);
     puts("\n");
-*/
-    uint32_t a = (uint32_t) malloc(4);
-    uint32_t b = (uint32_t) malloc(2);
-    uint32_t c = (uint32_t) malloc(2);
-    free((void*) a);
-    uint32_t d = (uint32_t) malloc(2);
-    printf("%x, %x, %x, %x\n", (unsigned) a, (unsigned) b, (unsigned) c, (unsigned) d);
+
+    extern void print_memory_blocks(void);
+    print_memory_blocks();
 }
