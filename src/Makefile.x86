@@ -1,8 +1,8 @@
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ	= kernel boot.o kernel.o
+OBJ	= kernel boot.o kernel.o memory.o
 FONTS = c64-8.o terminus-16.o
-DRIVERS = tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o page.o
+DRIVERS = tables.o idt.o isr.o irq.o timer.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
 EXTRA = shell.o
 
@@ -16,6 +16,7 @@ all:
 	# kernel
 	nasm -f elf32 x86/boot.s -o boot.o
 	gcc $(CFLAGS)  -Werror -c kernel.c -o kernel.o
+	gcc $(CFLAGS) -Werror -c memory.c -o memory.o
 
 	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
@@ -23,10 +24,8 @@ all:
 	gcc $(CFLAGS) -c x86/vga.c -o video.o
 	gcc $(CFLAGS) -Werror -c x86/keyboard.c -o keyboard.o
 	gcc $(CFLAGS) -Werror -c x86/timer.c -o timer.o
-	gcc $(CFLAGS) -Werror -c x86/page.c -o page.o
 	
 	gcc $(CFLAGS) -Werror -c x86/idt.c -o idt.o
-	gcc $(CFLAGS) -Werror -c x86/page.c -o page.o
 	gcc $(CFLAGS) -Werror -c x86/isr.c -o isr.o
 	gcc $(CFLAGS) -Werror -c x86/irq.c -o irq.o
 	

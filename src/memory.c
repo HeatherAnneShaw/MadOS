@@ -12,46 +12,13 @@
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
-uint64_t page_dir_ptr_tab[4] __attribute__((aligned(0x20))); // must be aligned to (at least)0x20, ...
-    // ... turning out that you can put more of them into one page, saving memory
-uint64_t page_directory[512] __attribute__((aligned(0x1000)));  // must be aligned to page boundary
-uint64_t page_table[512] __attribute__((aligned(0x1000)));
-
+/*****************************************
+    Flat memory manager from scratch :D
+*****************************************/
 extern uint32_t KERNEL_END;
 extern void halt(void);
 
 
-void clear_page_directory()
-{
-    for(unsigned int i = 0, address = 0; i < 512; i++)
-    {
-        page_table[i] = address | 3; // map address and mark it present/writable
-        address = address + 0x1000;
-        // This sets the following flags to the pages:
-        //   Supervisor: Only kernel-mode can access them
-        //   Write Enabled: It can be both read from and written to
-        //   Not Present: The page table is not present
-        page_directory[i] = 0x00000002;
-    }
-}
-
-void init_paging(void)
-{
-    clear_page_directory();
-    page_dir_ptr_tab[0] = (uint32_t)&page_directory | 1; // set the page directory into the PDPT and mark it present
-    page_directory[0] = (uint32_t)&page_table | 3; //set the page table into the PD and mark it present/writable
-
-    asm volatile ("movl %cr4, %eax; bts $5, %eax; movl %eax, %cr4"); // set bit5 in CR4 to enable PAE		 
-    asm volatile ("movl %%eax, %%cr3" :: "a" (&page_dir_ptr_tab)); // load PDPT into CR3
-    asm volatile ("movl %cr0, %eax; orl $0x80000000, %eax; movl %eax, %cr0;");
-
-    printf("Paging enabled\npage directory table: 0x%x, page directory: 0x%x, page table: 0x%x\n\n",
-        (unsigned) page_dir_ptr_tab, (unsigned) page_directory, (unsigned) page_table);
-}
-
-/*****************************************
-    Flat memory manager from scratch :D
-*****************************************/
 uint32_t MEM_POOL = 0;
 uint32_t MEM_POOL_END = 0;
 uint32_t MEM_POOL_SIZE = 0;
@@ -112,7 +79,6 @@ skip_multiboot:
     c_block->ptr = MEM_POOL_END;
     c_block->next = MEM_POOL_END;
 
-//    init_paging();
 }
 
 
