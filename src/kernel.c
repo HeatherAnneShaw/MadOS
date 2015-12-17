@@ -178,7 +178,13 @@ skip_multiboot: ({}); // labels must be part of a statement
     }
     video_setcolor(DEFAULT_COLOR);
     puts("\n");
+    void* a = malloc(4);
+    free(a);
+    void* b = malloc(2);
+    void* c = malloc(2);
+    void* d = malloc(2);
 
+    printf("%x, %x, %x, %x\n", &a, &b, &c, &d);
     extern void print_memory_blocks(void);
     print_memory_blocks();
 }

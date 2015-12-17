@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <multiboot.h>
 #include <assert.h>
+#include <video.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -200,10 +201,19 @@ void print_memory_blocks(void)
     for(mem_entry_t* p = (mem_entry_t*)((mem_entry_t*) MEM_POOL)->next;p->next != MEM_POOL_END;p = (mem_entry_t*) p->next)
     {
         if(p->free)
+        {
+            video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, COLOR_LIGHT_GREEN));
+            putchar('F');
             free++;
+        }
         else
+        {
+            video_setcolor(MAKE_COLOR(COLOR_RED, COLOR_RED));
+            putchar('X');
             reserved++;
+        }
     }
-    printf("free: %i\nreserved: %i\ntotal: %i\n", free, reserved, free + reserved);
+    video_setcolor(DEFAULT_COLOR);
+    printf("\nfree: %i\nreserved: %i\ntotal: %i\n", free, reserved, free + reserved);
 }
 
