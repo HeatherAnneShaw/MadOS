@@ -42,9 +42,9 @@ typedef struct
 */
 
 
-bool is_elf(int32_t* file)
+bool is_elf(uint32_t* file)
 {
-    return file[0] == 0x464c457f;
+    return file[0] == 0x464c457f;  // "\x7fELF" in little endian
 }
 
 static char name[] = "ELF";

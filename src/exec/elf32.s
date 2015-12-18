@@ -37,10 +37,11 @@ _start:
     mov eax, 4
     mov ebx, 1
     mov ecx, string
-    mov edx, 15
+    mov edx, end_string - string
     int 31
 string:
-    db "Hello World!!!", 0xa
+    db "Hello world, I'm a kernel module :D", 0xa
+end_string:
 filesize equ $ - $$
 
 
