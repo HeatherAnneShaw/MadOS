@@ -69,6 +69,9 @@ skip_multiboot:
     c_block->prev = (uint32_t) b_block;
     c_block->ptr = MEM_POOL_END;
     c_block->next = MEM_POOL_END;
+
+    KERNEL_END = (uint32_t) &KERNEL_END;
+    KERNEL_START = (uint32_t) &KERNEL_START;
 }
 
 
@@ -189,8 +192,10 @@ void print_memory_blocks(void)
                     printf("PT %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
                 else if(psize / (1024*1024) > 0)
                     printf("PT %i.%iMB", psize / (1024*1024), psize % (1024*1024));
-                else
+                else if(psize / 1024 > 0)
                     printf("PT %i.%iKB", psize / 1024, psize % 1024);
+                else
+                    printf("PT %iB", psize);
             }
             else if(p->type == EXE)
             {
@@ -199,8 +204,10 @@ void print_memory_blocks(void)
                     printf("EX %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
                 else if(psize / (1024*1024) > 0)
                     printf("EX %i.%iMB", psize / (1024*1024), psize % (1024*1024));
-                else
+                else if(psize / 1024 > 0)
                     printf("EX %i.%iKB", psize / 1024, psize % 1024);
+                else
+                    printf("EX %iB", psize);
             }
             else if(p->type == FS)
             {
@@ -209,8 +216,10 @@ void print_memory_blocks(void)
                     printf("FS %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
                 else if(psize / (1024*1024) > 0)
                     printf("FS %i.%iMB", psize / (1024*1024), psize % (1024*1024));
-                else
+                else if(psize / 1024 > 0)
                     printf("FS %i.%iKB", psize / 1024, psize % 1024);
+                else
+                    printf("FS %iB", psize);
             }
             video_setcolor(DEFAULT_COLOR);
         }

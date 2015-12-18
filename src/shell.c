@@ -16,11 +16,11 @@ void command_clear(void)
     video_clear();
     putch('\n');
 }
-extern void halt(void);
+extern void hang(void);
 void command_exit(void)
 {
     printf("< shell terminated >\n");
-    halt();
+    hang();
 }
 
 void command_echo(int count, char** argv)

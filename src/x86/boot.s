@@ -21,6 +21,7 @@ dd CHECKSUM
 section .text
 global _start
 global halt
+global hang
 extern __init
 extern __fini
 extern main

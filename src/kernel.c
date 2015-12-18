@@ -60,6 +60,10 @@ void __fini(void)
     size_t i = __fini_array_end - __fini_array_start;
     while(i--)
         (*__fini_array_start[i])();
+
+    extern void init_paging(void);
+
+    init_paging();
 }
 
 #include <elf.h>
@@ -95,7 +99,9 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                     unsigned place;
                     for(place = 0;place < registered_exec_handlers;place++)
                     {
+                        // load module with appropriate handler
                         if(exec_table[i]->is_type((void*) mod->mod_start))
+                            exec_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
                             break;
                     }
                     if(place == registered_exec_handlers)
@@ -107,12 +113,10 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                     }
                     else
                     {
-                        // load module with appropriate handler
-                        printf("type = %s, mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
+                        printf("type = %s, mod_start = 0x%x, mod_end = 0x%x\n",
                             exec_table[place]->name,
                             (unsigned) mod->mod_start,
-                            (unsigned) mod->mod_end,
-                            (char *) mod->cmdline);
+                            (unsigned) mod->mod_end);
                     }
                 }
     }

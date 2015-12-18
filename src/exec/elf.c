@@ -47,15 +47,26 @@ bool is_elf(uint32_t* file)
     return file[0] == 0x464c457f;  // "\x7fELF" in little endian
 }
 
-static char name[] = "ELF";
+void load_module(char* name, void* p)
+{
+    Elf32_Ehdr* Eheader = p;
+    Elf32_Phdr* Pheader = p+Eheader->e_phoff;
+    // use exec to load the code after offset and then jump to the entry point
+    if(((char*) p)[4] == ET_REL)
+        exec_loadmodule(name, p + Pheader->p_offset, Pheader->p_vaddr, Eheader->e_entry - Pheader->p_offset, Pheader->p_memsz);
+    else
+        puts("This is not a relocatable file");
+}
 
+static char name[] = "ELF";
 void __attribute__((constructor)) init_elf()
 {
     // set up executable format descriptor
     puts("Registered ELF executable format.");
     exec_entry_t* elf = malloc(sizeof(exec_entry_t));
-    elf->is_type = (void*) is_elf;
     elf->name = name;
+    elf->is_type = (void*) is_elf;
+    elf->load_module = (void*) load_module;
 
     // set up memory region for format specifier
     mem_entry_t* p = (void*) elf - sizeof(mem_entry_t);

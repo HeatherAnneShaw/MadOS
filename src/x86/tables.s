@@ -8,7 +8,6 @@
 [BITS 32]
 
 section .bss
-align 4096
 section .text
 
 global gdt_flush     ; Allows the C code to link to this

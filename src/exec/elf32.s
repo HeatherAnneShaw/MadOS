@@ -2,7 +2,8 @@
 section .text
 global _start
 
-org 0x1337
+;org 0x1337
+org 0x115054
 ehdr:                                  ; Elf32_Ehdr
 	db 0x7F, "ELF", 1, 1, 1            ;   e_ident
 	times 9 db 0
@@ -23,26 +24,34 @@ ehdr:                                  ; Elf32_Ehdr
 	
 phdr:                                  ; Elf32_Phdr
 	dd 1                               ;   p_type
-	dd 0                               ;   p_offset
+	dd headersize                      ;   p_offset
 	dd $$                              ;   p_vaddr
 	dd $$                              ;   p_paddr
 	dd filesize                        ;   p_filesz
-	dd filesize                        ;   p_memsz
+	dd program_size                    ;   p_memsz
 	dd 7                               ;   p_flags
-	dd 0x1000                          ;   p_align
+	dd 0                               ;   p_align
 	phdrsize equ $ - phdr
 
+headersize equ ehdrsize + phdrsize
+
+p_start:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+string:
+    db "Hello world", 0xa
 _start:
     mov eax, 4
     mov ebx, 1
     mov ecx, string
-    mov edx, end_string - string
+    mov edx, 12
     int 31
-string:
-    db "Hello world, I'm a kernel module :D", 0xa
-end_string:
+behind: jmp behind  ; no exit syscall yet ...
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 filesize equ $ - $$
+program_size equ $ - p_start
 
 
 

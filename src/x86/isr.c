@@ -128,14 +128,15 @@ void fault_handler(struct regs *r)
 {
     if(r->int_no == 31)
     {
+        printf("Syscall: %x, ebx: %x, ecx: %x, edx: %x\n", r->eax, r->ebx, r->ecx, r->edx);
         // syscalls
         switch(r->eax)
         {
             case 0x03:
-                read(r->ebx, (void*) r->ecx, r->edx);
+                //read(r->ebx, (void*) r->ecx, r->edx);
                 break;
             case 0x04:
-                write(r->ebx, (const void*) r->ecx, r->edx);
+                //write(r->ebx, (void*) r->ecx, r->edx);
                 break;
             default:
                 puts("Invalid systemcall");
@@ -146,8 +147,7 @@ void fault_handler(struct regs *r)
     {
         puts(exception_messages[r->int_no]);
         puts(" Exception. System Halted!\n");
-        //halt();
-        for(;;);
+        halt();
     }
 }
 
