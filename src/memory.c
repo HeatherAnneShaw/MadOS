@@ -214,7 +214,7 @@ void print_memory_blocks(void)
         }
     }
     video_setcolor(DEFAULT_COLOR);
-    printf("\n\nkey:\n| = %iB\n", sizeof(mem_entry_t));
+    printf("\n\nkey:\n| = %iB mem_entry struct\n", sizeof(mem_entry_t));
     video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_GREEN));
     putchar('*');
     video_setcolor(DEFAULT_COLOR);
