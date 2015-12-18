@@ -42,14 +42,12 @@ typedef struct
 */
 
 
-bool is_elf(Elf32_Ehdr* header)
+bool is_elf(int32_t* file)
 {
-    return (header->e_ident[0] == 0x7f && header->e_ident[1] == 'E') && header->e_ident[2] == 'L'  && header->e_ident[3] == 'F';
+    return file[0] == 0x464c457f;
 }
 
 static char name[] = "ELF";
-
-
 
 void __attribute__((constructor)) init_elf()
 {
