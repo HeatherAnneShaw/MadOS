@@ -59,7 +59,7 @@ all:
 
 test:
 	cp kernel ../os/kernel
-	qemu-system-i386 -m 1024 -kernel ../os/kernel -append "path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/init.elf -hda ../os/mados.img
+	qemu-system-i386 -m 4GB -kernel ../os/kernel -append "path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/init.elf -hda ../os/mados.img
 
 clean:
 	rm *.o

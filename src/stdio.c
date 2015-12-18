@@ -62,24 +62,32 @@ char* __printf_f_c(char p)
 
 char* __printf_f_i(void* p)
 {
-    return itoa((int) p, 10, true);
+    char* ret = itoa((int) p, 10, true);
+    free(ret);
+    return ret;
 }
 
 char* __printf_f_d(void* p)
 {
-    return itoa((int) p, 10, true);
+    return __printf_f_i(p);
 }
 char* __printf_f_u(void* p)
 {
-    return itoa((unsigned int) p, 10, false);
+    char* ret = itoa((int) p, 10, false);
+    free(ret);
+    return ret;
 }
 char* __printf_f_x(void* p)
 {
-    return itoa((unsigned int) p, 16, false);
+    char* ret = itoa((unsigned) p, 16, false);
+    free(ret);
+    return ret;
 }
 char* __printf_f_b(void* p)
 {
-    return itoa((unsigned int) p, 2, false);
+    char* ret = itoa((unsigned) p, 2, false);
+    free(ret);
+    return ret;
 }
 
 char format_flags[25] = "sciduxb";

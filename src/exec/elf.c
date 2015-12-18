@@ -44,8 +44,7 @@ typedef struct
 
 bool is_elf(Elf32_Ehdr* header)
 {
-    return (header->e_ident[0] == 0x7f && header->e_ident[1] == 'E') && header->e_ident[2] == 'L'  && header->e_ident[3] == 'F'?
-       true : false;
+    return (header->e_ident[0] == 0x7f && header->e_ident[1] == 'E') && header->e_ident[2] == 'L'  && header->e_ident[3] == 'F';
 }
 
 static char name[] = "ELF";

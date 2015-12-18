@@ -156,46 +156,98 @@ void free(void* ptr)
 
 void print_memory_blocks(void)
 {
-    puts("Memory map:\n");
+    asm("cli");
+    combine_free_blocks();
     for(mem_entry_t* p = (mem_entry_t*)((mem_entry_t*) MEM_POOL)->next;p->next != MEM_POOL_END;p = (mem_entry_t*) p->next)
     {
+        video_setcolor(DEFAULT_COLOR);
+        putch('|');
         if(p->free)
         {
-            video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_GREEN));
-            putchar('F');
+            video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_GREEN));
+            putchar('*');
         }
         else
         {
+            uint32_t psize = p->next - p->ptr;
             if(p->type == STR)
             {
-                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_CYAN));
-                putchar('S');
+                video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_BLUE));
+                if(psize / (1024*1024*1024) > 0)
+                    printf("KS %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
+                else if(psize / (1024*1024) > 0)
+                    printf("KS %i.%iMB", psize / (1024*1024), psize % (1024*1024));
+                else
+                    printf("KS %i.%iKB", psize / 1024, psize % 1024);
             }
             else if(p->type == PTR)
             {
-                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_MAGENTA));
-                putchar('P');
+                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_WHITE));
+                if(psize / (1024*1024*1024) > 0)
+                    printf("PT %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
+                else if(psize / (1024*1024) > 0)
+                    printf("PT %i.%iMB", psize / (1024*1024), psize % (1024*1024));
+                else
+                    printf("PT %i.%iKB", psize / 1024, psize % 1024);
             }
             else if(p->type == EXE)
             {
-                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_BROWN));
-                putchar('E');
+                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_CYAN));
+                if(psize / (1024*1024*1024) > 0)
+                    printf("EX %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
+                else if(psize / (1024*1024) > 0)
+                    printf("EX %i.%iMB", psize / (1024*1024), psize % (1024*1024));
+                else
+                    printf("EX %i.%iKB", psize / 1024, psize % 1024);
             }
             else if(p->type == FS)
             {
-                video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_RED));
-                putchar('F');
+                video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
+                if(psize / (1024*1024*1024) > 0)
+                    printf("FS %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
+                else if(psize / (1024*1024) > 0)
+                    printf("FS %i.%iMB", psize / (1024*1024), psize % (1024*1024));
+                else
+                    printf("FS %i.%iKB", psize / 1024, psize % 1024);
             }
+            video_setcolor(DEFAULT_COLOR);
         }
     }
     video_setcolor(DEFAULT_COLOR);
+    printf("\n\nkey:\n| = %iB\n", sizeof(mem_entry_t));
+    video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_GREEN));
+    putchar('*');
+    video_setcolor(DEFAULT_COLOR);
+    puts(" -> free block");
+
+    video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_BLUE));
+    printf("KS");
+    video_setcolor(DEFAULT_COLOR);
+    puts(" -> kernel structure");
+
+    video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_WHITE));
+    printf("PT");
+    video_setcolor(DEFAULT_COLOR);
+    puts(" -> temporary pointer");
+
+    video_setcolor(MAKE_COLOR(COLOR_BLACK, COLOR_LIGHT_CYAN));
+    printf("EX");
+    video_setcolor(DEFAULT_COLOR);
+    puts(" -> executable file");
+
+    video_setcolor(MAKE_COLOR(COLOR_WHITE, COLOR_RED));
+    printf("FS");
+    video_setcolor(DEFAULT_COLOR);
+    puts(" -> ram file system");
     puts("\n");
+    asm("sti");
 }
 
-static char name[] = "map\x00";
-static char desc[] = "Print out kernel memory map\x00";
+static char name[] = "map";
+static char desc[] = "Print out kernel memory map";
 
-static void __attribute__((constructor)) add_command(void)
+static void __attribute__((constructor)) addt_command(void)
 {
     register_shell_command(name, (void*) print_memory_blocks, desc);
 }
+
