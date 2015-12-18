@@ -158,5 +158,5 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
 skip_multiboot: ({}); // labels must be part of a statement
-
+    
 }

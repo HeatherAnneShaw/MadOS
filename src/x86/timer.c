@@ -23,6 +23,8 @@ void timer_handler(/*struct regs *r*/)
 {
     /* Increment our 'tick count' */
     timer_ticks++;
+
+    // handle context switching
 }
 
 /* This will continuously loop until the given time has

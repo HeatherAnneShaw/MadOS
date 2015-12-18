@@ -177,8 +177,10 @@ void print_memory_blocks(void)
                     printf("KS %i.%iGB", psize / (1024*1024*1024), psize % (1024*1024*1024));
                 else if(psize / (1024*1024) > 0)
                     printf("KS %i.%iMB", psize / (1024*1024), psize % (1024*1024));
-                else
+                else if(psize / 1024 > 0)
                     printf("KS %i.%iKB", psize / 1024, psize % 1024);
+                else
+                    printf("KS %iB", psize);
             }
             else if(p->type == PTR)
             {
