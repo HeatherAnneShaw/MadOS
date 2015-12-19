@@ -104,7 +104,7 @@ void debug_command(char* command_string)
 #else
 #define PROMPT "[MadOS] "
 #endif
-void debug_shell(void)
+void /*__attribute__((destructor)) */debug_shell(void)
 {
     cursor_pos_t pos;
     char command_string[MAX_COMMAND_LINE_LENGTH] = "";
@@ -152,13 +152,13 @@ void debug_shell(void)
             default:
                 if(strlen(command_string) < MAX_COMMAND_LINE_LENGTH)
                 {
-                    putch(c);
                     strcat(command_string, (char[]){c, 0});
                 }
                 break;
         }
     }
     panic("\ngetchar", 2);
+    exec_end_schedule(shell_context);
 }
 
 void __attribute__((constructor)) debug_shell_init(void)
@@ -177,6 +177,6 @@ void __attribute__((constructor)) debug_shell_init(void)
     shell_context->code = (uint32_t) debug_shell;
     shell_context->vaddr = (uint32_t) debug_shell;
     shell_context->size = (uint32_t) debug_shell;
-
+    shell_context->stack = (uint32_t) malloc(DEFAULT_STACK_SIZE);
     exec_add_schedule(shell_context, (uint32_t) debug_shell);
 }

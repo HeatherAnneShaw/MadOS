@@ -254,11 +254,4 @@ void print_memory_blocks(void)
     asm("sti");
 }
 
-static char name[] = "map";
-static char desc[] = "Print out kernel memory map";
-
-static void __attribute__((constructor)) addt_command(void)
-{
-    register_shell_command(name, (void*) print_memory_blocks, desc);
-}
 

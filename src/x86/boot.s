@@ -37,12 +37,12 @@ _start:
     call __init
     call main
     call __fini
-    sti
     jmp hang
 halt:
     cli
     hlt
 hang:
+    sti
     jmp hang
 
 

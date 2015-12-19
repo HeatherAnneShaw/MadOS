@@ -42,8 +42,8 @@ extern void irq_install_handler(int irq, void (*handler)(struct regs *r));
 extern void irq_uninstall_handler(int irq);
 
 volatile unsigned char character;
-/* Handles the keyboard interrupt */
-void keyboard_handler(/*struct regs *r*/)
+
+void keyboard_handler(struct regs *r)
 {
     unsigned char scancode;
     /* Read from the keyboard's data buffer */
@@ -82,6 +82,7 @@ void keyboard_handler(/*struct regs *r*/)
         else if(kbdus[scancode] != 0)
         {
             character = kbdus[scancode];
+            putch(character);
         }
         else switch(scancode)
         {
@@ -104,9 +105,7 @@ void keyboard_handler(/*struct regs *r*/)
 unsigned char keyboard_getch(void)
 {
     character = 0;
-    irq_install_handler(1, keyboard_handler);
     while(character == 0);
-    irq_uninstall_handler(1);
     return character;
 }
 
@@ -114,4 +113,5 @@ extern unsigned char (*getch) (void);
 void __attribute__((constructor)) keyboard_install()
 {
     getch = keyboard_getch;
+    irq_install_handler(1, keyboard_handler);
 }

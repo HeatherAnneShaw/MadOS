@@ -22,47 +22,31 @@ bool first_run = true;
 
 ps_context_t main_context;
 
-static void idle_thread()
-{
-    puts("Idle thread started, multitasking enabled.");
-    hang();
-}
-
-
 void Gollum_handler(struct regs* r)
 {
-    if(first_run) // if this is the first run, register the kernel idle process
-    {
-        puts("Registered kernel idle thread");
-        main_context.name = "Kernel Idle";
-        main_context.code = KERNEL_START;
-        main_context.vaddr = KERNEL_END;
-        main_context.size = 0;
-
-        r->eip = (uint32_t) idle_thread;
-        memcpy(&(main_context.context), r, sizeof(struct regs));
-        first_run = false;
-    }
     if(Gollum++ % 18 == 0)
         Gollum_seconds++;
 
     // handle context switching
-    if(Gollum)
+    if(Gollum % 2 == 0)    // remove this statement, or speed up the clock
     {
+        // store the current process state before context swith
         memcpy(&(ps_schedule_map[ps_counter]->context), &r, sizeof(struct regs));
         ps_counter++;
+        // find another process to run next
         for(;ps_schedule_map[ps_counter] == 0;ps_counter++)
         {
             if(ps_counter == MAX_PS_NUMBER)
             {
+                // if there are no other proesses go to idle state
                 ps_counter = 0;
-                return;
+                break;
             }
         }
-        if(ps_schedule_map[ps_counter]->context.esp == ps_schedule_map[ps_counter]->context.ebp)
-            asm("sti"); // enable interupts
-        printf("%i,", ps_counter);
+        //printf("%s,", ps_schedule_map[ps_counter]->name); // current ps debug output
+        // copy the ps context into the current state
         memcpy(&r, &(ps_schedule_map[ps_counter]->context), sizeof(struct regs));
+        asm("sti");
     }
     return;     // run scheduled code
 }

@@ -12,15 +12,14 @@
 #include <stdint.h>
 #include <page.h>
 
+/* This defines what the stack looks like after an ISR was running */
 struct regs
 {
-    uint32_t gs, fs, es, ds;
-    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    uint32_t int_no, err_code;
-    uint32_t eip, cs, eflags, useresp, ss;
-    void* cr3;
+    unsigned int gs, fs, es, ds;      /* pushed the segs last */
+    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
+    unsigned int int_no, err_code;    /* our 'push byte #' and ecodes do this */
+    unsigned int eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
 };
-
 
 extern unsigned char inb(uint32_t port);
 extern void outb(unsigned int port, unsigned int value);

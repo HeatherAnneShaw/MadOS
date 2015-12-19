@@ -47,7 +47,8 @@ extern void mem_initialize();
 void __init(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     mem_initialize(magic, mbi);   // initialize stage 1 memory manager
-
+    //init_paging();
+    
     size_t i = __init_array_end - __init_array_start;
     while(i--)
         (*__init_array_start[i])(magic, mbi);

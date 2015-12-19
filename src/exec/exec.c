@@ -9,9 +9,6 @@
 #include <memory.h>
 #include <string.h>
 
-
-#define DEFAULT_STACK_SIZE (1024 * 6)
-
 exec_entry_t* exec_table[MAX_EXEC_FORMATS] = { NULL };
 size_t registered_exec_handlers = 0;
 extern ps_context_t main_context;
@@ -38,10 +35,13 @@ void exec_add_schedule(ps_context_t* p, uint32_t entry)
         };
     */
     // setup paging, then context switching / registering
-    p->context.eip = (uint32_t) entry;
-    p->context.esp = (uint32_t) entry;
-    p->context.ebp = (uint32_t) entry;
-    
+    p->context.eip = entry;
+    //p->stack = (uint32_t) malloc(DEFAULT_STACK_SIZE);
+    // set the stack to something reasonable using DEFAULT_STACK_SIZE
+    //p->context.esp = p->stack + DEFAULT_STACK_SIZE;
+    //p->context.ebp = p->stack;
+    p->context.esp = entry; // WHY?
+    p->context.ebp = entry; // WHY?
     for(int i = 1;i <= MAX_PS_NUMBER;i++)
     {
         if(ps_schedule_map[i] == 0)
@@ -54,11 +54,12 @@ void exec_add_schedule(ps_context_t* p, uint32_t entry)
 
 void exec_end_schedule(ps_context_t* p)
 {
-    for(int i = 1;i <= MAX_PS_NUMBER;i++)
+    for(int i = 0;i <= MAX_PS_NUMBER;i++)
     {
         if(ps_schedule_map[i] == p)
         {
             ps_schedule_map[i] = 0;
+            free((void*) p->stack);
             free(p);
             break;
         }
@@ -68,7 +69,7 @@ void exec_end_schedule(ps_context_t* p)
 void exec_loadmodule(char* name, void* code, uint32_t vaddr, uint32_t entry, uint32_t size)
 {
     // load code into context driver and schedule the entry
-    ps_context_t* p = malloc(sizeof(ps_context_t) + DEFAULT_STACK_SIZE);
+    ps_context_t* p = malloc(sizeof(ps_context_t));
     mem_entry_t* m = (mem_entry_t*) ((uint32_t) p - sizeof(mem_entry_t));
     m->type = EXE;
     p->name = name;
@@ -80,10 +81,23 @@ void exec_loadmodule(char* name, void* code, uint32_t vaddr, uint32_t entry, uin
     printf("%s ->  padd: 0x%x, vadd: 0x%x, entry: 0x%x, size: %iB\n", name, code, vaddr, entry, size);
 }
 
+extern void hang();
+static void idle_thread()
+{
+    puts("Idle thread started, multitasking enabled.");
+    hang();
+}
+
+
 void __attribute__((constructor)) init_exec(void)
 {
-    ps_schedule_map[0] = &main_context;
     memset(ps_schedule_map, 0, MAX_PS_NUMBER);
+    main_context.name = "kernel";
+    main_context.code = (void*) KERNEL_START;
+    main_context.vaddr = KERNEL_END;
+    main_context.size = 0;
+    
+    exec_add_schedule(&main_context, (uint32_t) idle_thread);
 }
 
 
