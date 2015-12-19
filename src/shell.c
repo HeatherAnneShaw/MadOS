@@ -11,16 +11,21 @@
 #include <madmath.h>
 #include <shell.h>
 
+#include<exec.h>
+#include<memory.h>
+
+ps_context_t* shell_context;
+extern uint32_t ps_counter;
 void command_clear(void)
 {
     video_clear();
     putch('\n');
 }
-extern void hang(void);
+
 void command_exit(void)
 {
     printf("< shell terminated >\n");
-    hang();
+    exec_end_schedule(shell_context);
 }
 
 void command_echo(int count, char** argv)
@@ -45,14 +50,6 @@ bool register_shell_command(char* command, command_fun_ptr function, char* descr
     return true;
 }
 
-void __attribute__((constructor)) debug_shell_init(void)
-{
-    // reister built in commands
-    command_list[command_list_size++] = (command_t) {"clear", (void*) command_clear,          "Clear the screen"};
-    command_list[command_list_size++] = (command_t) {"exit",  (void*) command_exit,           "Exit the shell"};
-    command_list[command_list_size++] = (command_t) {"halt",  (void*) command_exit,           "Halt the machine"};
-    command_list[command_list_size++] = (command_t) {"echo",  command_echo,                   "Print out some text"};
-}
 
 void debug_command(char* command_string)
 {
@@ -107,7 +104,7 @@ void debug_command(char* command_string)
 #else
 #define PROMPT "[MadOS] "
 #endif
-void __attribute__((destructor)) debug_shell(void)
+void debug_shell(void)
 {
     cursor_pos_t pos;
     char command_string[MAX_COMMAND_LINE_LENGTH] = "";
@@ -162,4 +159,24 @@ void __attribute__((destructor)) debug_shell(void)
         }
     }
     panic("\ngetchar", 2);
+}
+
+void __attribute__((constructor)) debug_shell_init(void)
+{
+    // reister built in commands
+    command_list[command_list_size++] = (command_t) {"clear", (void*) command_clear,          "Clear the screen"};
+    command_list[command_list_size++] = (command_t) {"exit",  (void*) command_exit,           "Exit the shell"};
+    command_list[command_list_size++] = (command_t) {"halt",  (void*) command_exit,           "Halt the machine"};
+    command_list[command_list_size++] = (command_t) {"echo",  command_echo,                   "Print out some text"};
+
+    // load code into context driver and schedule the entry
+    shell_context = malloc(sizeof(ps_context_t));
+    mem_entry_t* m = (mem_entry_t*) ((uint32_t) shell_context - sizeof(mem_entry_t));
+    m->type = EXE;
+    shell_context->name = "SHELL";
+    shell_context->code = (uint32_t) debug_shell;
+    shell_context->vaddr = (uint32_t) debug_shell;
+    shell_context->size = (uint32_t) debug_shell;
+
+    exec_add_schedule(shell_context, (uint32_t) debug_shell);
 }

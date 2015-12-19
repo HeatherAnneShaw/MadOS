@@ -16,6 +16,7 @@
 #include <module.h>
 #include <video.h>
 #include <exec.h>
+#include <memory.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -60,10 +61,6 @@ void __fini(void)
     size_t i = __fini_array_end - __fini_array_start;
     while(i--)
         (*__fini_array_start[i])();
-
-    extern void init_paging(void);
-
-    init_paging();
 }
 
 #include <elf.h>
@@ -162,5 +159,5 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
         }
     }
 skip_multiboot: ({}); // labels must be part of a statement
-    
+    print_memory_blocks();
 }

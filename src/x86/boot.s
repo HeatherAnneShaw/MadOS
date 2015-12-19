@@ -35,9 +35,9 @@ _start:
     ; Push the magic value. 
     push   eax
     call __init
-    sti
     call main
     call __fini
+    sti
     jmp hang
 halt:
     cli

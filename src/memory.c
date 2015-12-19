@@ -254,7 +254,6 @@ void print_memory_blocks(void)
     asm("sti");
 }
 
-
 static char name[] = "map";
 static char desc[] = "Print out kernel memory map";
 

@@ -40,19 +40,17 @@ void Gollum_handler(struct regs* r)
         main_context.size = 0;
 
         r->eip = (uint32_t) idle_thread;
-        memcpy(&(main_context.context), &r, sizeof(struct regs));
+        memcpy(&(main_context.context), r, sizeof(struct regs));
         first_run = false;
     }
     if(Gollum++ % 18 == 0)
-    {
         Gollum_seconds++;
-        putch('#'); // remove this when it fills the screen
-    }
 
     // handle context switching
-    if(Gollum % 2 == 0)
+    if(Gollum)
     {
         memcpy(&(ps_schedule_map[ps_counter]->context), &r, sizeof(struct regs));
+        ps_counter++;
         for(;ps_schedule_map[ps_counter] == 0;ps_counter++)
         {
             if(ps_counter == MAX_PS_NUMBER)
@@ -61,9 +59,10 @@ void Gollum_handler(struct regs* r)
                 return;
             }
         }
-        asm("sti"); // enable interupts
+        if(ps_schedule_map[ps_counter]->context.esp == ps_schedule_map[ps_counter]->context.ebp)
+            asm("sti"); // enable interupts
+        printf("%i,", ps_counter);
         memcpy(&r, &(ps_schedule_map[ps_counter]->context), sizeof(struct regs));
-        ps_counter++;
     }
     return;     // run scheduled code
 }

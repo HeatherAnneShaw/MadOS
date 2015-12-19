@@ -133,7 +133,7 @@ void fault_handler(struct regs *r)
         switch(r->eax)
         {
             case 0x03:
-                //read(r->ebx, (void*) r->ecx, r->edx);
+                read(r->ebx, (void*) r->ecx, r->edx);
                 break;
             case 0x04:
                 write(r->ebx, (void*) r->ecx, r->edx);

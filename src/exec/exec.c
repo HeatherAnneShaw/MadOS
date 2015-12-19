@@ -9,8 +9,12 @@
 #include <memory.h>
 #include <string.h>
 
+
+#define DEFAULT_STACK_SIZE (1024 * 6)
+
 exec_entry_t* exec_table[MAX_EXEC_FORMATS] = { NULL };
 size_t registered_exec_handlers = 0;
+extern ps_context_t main_context;
 
 bool register_exec(exec_entry_t* entry)
 {
@@ -35,8 +39,8 @@ void exec_add_schedule(ps_context_t* p, uint32_t entry)
     */
     // setup paging, then context switching / registering
     p->context.eip = (uint32_t) entry;
-    p->context.ebp = (uint32_t) entry;
     p->context.esp = (uint32_t) entry;
+    p->context.ebp = (uint32_t) entry;
     
     for(int i = 1;i <= MAX_PS_NUMBER;i++)
     {
@@ -64,7 +68,7 @@ void exec_end_schedule(ps_context_t* p)
 void exec_loadmodule(char* name, void* code, uint32_t vaddr, uint32_t entry, uint32_t size)
 {
     // load code into context driver and schedule the entry
-    ps_context_t* p = malloc(sizeof(ps_context_t));
+    ps_context_t* p = malloc(sizeof(ps_context_t) + DEFAULT_STACK_SIZE);
     mem_entry_t* m = (mem_entry_t*) ((uint32_t) p - sizeof(mem_entry_t));
     m->type = EXE;
     p->name = name;
@@ -76,7 +80,6 @@ void exec_loadmodule(char* name, void* code, uint32_t vaddr, uint32_t entry, uin
     printf("%s ->  padd: 0x%x, vadd: 0x%x, entry: 0x%x, size: %iB\n", name, code, vaddr, entry, size);
 }
 
-extern ps_context_t main_context;
 void __attribute__((constructor)) init_exec(void)
 {
     ps_schedule_map[0] = &main_context;
