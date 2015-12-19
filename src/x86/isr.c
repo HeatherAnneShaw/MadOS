@@ -136,7 +136,7 @@ void fault_handler(struct regs *r)
                 //read(r->ebx, (void*) r->ecx, r->edx);
                 break;
             case 0x04:
-                //write(r->ebx, (void*) r->ecx, r->edx);
+                write(r->ebx, (void*) r->ecx, r->edx);
                 break;
             default:
                 puts("Invalid systemcall");
@@ -146,7 +146,7 @@ void fault_handler(struct regs *r)
     else if (r->int_no < 32)
     {
         puts(exception_messages[r->int_no]);
-        puts(" Exception. System Halted!\n");
+        puts(" Exception. I need to do things when this happens soon lol\n");
         halt();
     }
 }

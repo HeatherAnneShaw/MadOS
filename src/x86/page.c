@@ -34,7 +34,7 @@ void init_paging(void)
     asm volatile ("movl %cr4, %eax; bts $5, %eax; movl %eax, %cr4"); // set bit5 in CR4 to enable PAE		 
     asm volatile ("movl %%eax, %%cr3" :: "a" (&page_dir_ptr_tab)); // load PDPT into CR3
 
-    asm volatile ("movl %cr0, %eax; orl $0x80000000, %eax; movl %eax, %cr0;");
+    asm volatile ("movl %cr0, %eax; orl $0x80000000, %eax; movl %eax, %cr0;");  // enable paging
 }
 
 

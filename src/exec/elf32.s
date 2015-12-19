@@ -3,7 +3,7 @@ section .text
 global _start
 
 ;org 0x1337
-org 0x115054
+org 0x116054
 ehdr:                                  ; Elf32_Ehdr
 	db 0x7F, "ELF", 1, 1, 1            ;   e_ident
 	times 9 db 0
@@ -37,16 +37,17 @@ headersize equ ehdrsize + phdrsize
 
 p_start:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 string:
-    db "Hello world", 0xa
+    db "Hello world, I'm a kernel module!!!", 0xa
+
 _start:
     mov eax, 4
     mov ebx, 1
-    mov ecx, string
-    mov edx, 12
+    lea ecx, [0x116054]
+    mov edx, 36
     int 31
-behind: jmp behind  ; no exit syscall yet ...
+
+back: jmp back  ; no exit syscall yet ...
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -76,10 +76,10 @@ void exec_loadmodule(char* name, void* code, uint32_t vaddr, uint32_t entry, uin
     printf("%s ->  padd: 0x%x, vadd: 0x%x, entry: 0x%x, size: %iB\n", name, code, vaddr, entry, size);
 }
 
-
-extern void hang();
+extern ps_context_t main_context;
 void __attribute__((constructor)) init_exec(void)
 {
+    ps_schedule_map[0] = &main_context;
     memset(ps_schedule_map, 0, MAX_PS_NUMBER);
 }
 

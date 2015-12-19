@@ -9,18 +9,48 @@
 #include <string.h>
 #include <machine.h>
 #include <video.h>
-#include <exec.h>
 
+#include <exec.h>
+#include <memory.h>
+
+extern void hang();
 uint64_t Gollum = 0;         // kernel tick count
 uint64_t Gollum_seconds = 0; // used for infrequent non time sensitive schedules
 uint64_t ps_counter = 0;
 
+bool first_run = true;
+
+ps_context_t main_context;
+
+static void idle_thread()
+{
+    puts("Idle thread started, multitasking enabled.");
+    hang();
+}
+
+
 void Gollum_handler(struct regs* r)
 {
-    if(Gollum++ % 18) Gollum_seconds++;
+    if(first_run) // if this is the first run, register the kernel idle process
+    {
+        puts("Registered kernel idle thread");
+        main_context.name = "Kernel Idle";
+        main_context.code = KERNEL_START;
+        main_context.vaddr = KERNEL_END;
+        main_context.size = 0;
+
+        r->eip = (uint32_t) idle_thread;
+        memcpy(&(main_context.context), &r, sizeof(struct regs));
+        first_run = false;
+    }
+    if(Gollum++ % 18 == 0)
+    {
+        Gollum_seconds++;
+        putch('#'); // remove this when it fills the screen
+    }
 
     // handle context switching
-    if(Gollum % 200)
+    if(Gollum % 2 == 0)
     {
         memcpy(&(ps_schedule_map[ps_counter]->context), &r, sizeof(struct regs));
         for(;ps_schedule_map[ps_counter] == 0;ps_counter++)
@@ -31,17 +61,11 @@ void Gollum_handler(struct regs* r)
                 return;
             }
         }
-        // if this is a new process, set it up for awesomeness
-        if(ps_schedule_map[ps_counter]->context.ebp == ps_schedule_map[ps_counter]->context.esp == ps_schedule_map[ps_counter]->context.eip)
-        {
-            uint32_t eip = ps_schedule_map[ps_counter]->context.eip;
-            memcpy(&(ps_schedule_map[ps_counter]->context), &r, sizeof(struct regs));
-            ps_schedule_map[ps_counter]->context.eip = eip;
-        }
+        asm("sti"); // enable interupts
         memcpy(&r, &(ps_schedule_map[ps_counter]->context), sizeof(struct regs));
         ps_counter++;
     }
-    return;
+    return;     // run scheduled code
 }
 
 /* This will continuously loop until the given time has
