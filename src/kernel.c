@@ -102,20 +102,10 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                             exec_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
                             break;
                     }
-                    if(place == registered_exec_handlers)
-                    {
-                        printf("type = UNKNOWN, mod_start = 0x%x, mod_end = 0x%x, cmdline = %s\n",
-                            (unsigned) mod->mod_start,
-                            (unsigned) mod->mod_end,
-                            (char *) mod->cmdline);
-                    }
-                    else
-                    {
-                        printf("type = %s, mod_start = 0x%x, mod_end = 0x%x\n",
-                            exec_table[place]->name,
-                            (unsigned) mod->mod_start,
-                            (unsigned) mod->mod_end);
-                    }
+                    printf("mod_start = 0x%x, mod_end = 0x%x\n",
+                        exec_table[place]->name,
+                        (unsigned) mod->mod_start,
+                        (unsigned) mod->mod_end);
                 }
     }
     if(CHECK_FLAG(mbi->flags, 0))
