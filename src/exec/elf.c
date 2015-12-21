@@ -47,7 +47,7 @@ bool is_elf(uint32_t* file)
     return file[0] == 0x464c457f;  // "\x7fELF" in little endian
 }
 
-void load_module(char* name, void* p)
+void elf_load_module(char* name, void* p)
 {
     Elf32_Ehdr* Eheader = p;
     Elf32_Phdr* Pheader = p+Eheader->e_phoff;
@@ -66,7 +66,7 @@ void __attribute__((constructor)) init_elf()
     exec_entry_t* elf = malloc(sizeof(exec_entry_t));
     elf->name = name;
     elf->is_type = (void*) is_elf;
-    elf->load_module = (void*) load_module;
+    elf->load_module = (void*) elf_load_module;
 
     // set up memory region for format specifier
     mem_entry_t* p = (void*) elf - sizeof(mem_entry_t);

@@ -17,6 +17,7 @@
 #include <video.h>
 #include <exec.h>
 #include <memory.h>
+#include <fs.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -64,9 +65,6 @@ void __fini(void)
         (*__fini_array_start[i])();
 }
 
-#include <elf.h>
-extern bool is_elf(Elf32_Ehdr* header);
-
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
@@ -97,10 +95,19 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                     unsigned place;
                     for(place = 0;place < registered_exec_handlers;place++)
                     {
-                        // load module with appropriate handler
+                        // ramdisks
+                        if(fs_table[i]->is_type((void*) mod->mod_start) == true)
+                        {
+                            puts("WOOT!!!");
+                            fs_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
+                            break;
+                        }
+                        // executables
                         if(exec_table[i]->is_type((void*) mod->mod_start))
+                        {
                             exec_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
                             break;
+                        }
                     }
                     printf("mod_start = 0x%x, mod_end = 0x%x\n",
                         exec_table[place]->name,

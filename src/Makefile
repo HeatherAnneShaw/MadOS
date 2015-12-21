@@ -3,12 +3,12 @@ AS = nasm
 AFLAGS = -f elf32
 
 CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
-OBJ	= kernel boot.o kernel.o memory.o ramdisk.o page.o
+OBJ	= kernel boot.o kernel.o memory.o page.o
 FONTS = c64-8.o terminus-16.o
 DRIVERS = tables.o timer.o idt.o isr.o irq.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
 EXEC = exec.o elf.o
-FS = fat.o
+FS = fs.o fat.o
 EXTRA = 
 
 all:
@@ -22,7 +22,6 @@ all:
 	$(AS) $(AFLAGS) x86/boot.s -o boot.o
 	gcc $(CFLAGS)  -Werror -c kernel.c -o kernel.o
 	gcc $(CFLAGS) -Werror -c memory.c -o memory.o
-	gcc $(CFLAGS) -Werror -c ramdisk.c -o ramdisk.o
 	gcc $(CFLAGS) -Werror -c x86/page.c -o page.o
 	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
@@ -44,7 +43,8 @@ all:
 	cp exec/elf32 ../os/init.elf
 	
 	#filesystem formats
-	gcc $(CFLAGS) -Werror -c fs/fat.c -o fat.o
+	gcc $(CFLAGS) -c fs/fs.c -o fs.o
+	gcc $(CFLAGS) -c fs/fat.c -o fat.o
 
 	# fonts
 #	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
@@ -57,11 +57,11 @@ all:
 #	gcc $(CFLAGS) -c x86/fonts/matrix-16.c -o matrix-16.o
 
 	# link it on up
-	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FS) $(EXEC) $(EXTRA) $(DRIVERS) $(FONTS) $(LIBK)
+	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FS) $(EXEC) $(DRIVERS) $(FONTS) $(EXTRA) $(LIBK)
 
 test:
 	cp kernel ../os/kernel
-	qemu-system-i386 -m 4GB -kernel ../os/kernel -append "path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/init.elf
+	qemu-system-i386 -m 4GB -kernel ../os/kernel -append "path=/bin:/sbin:/usr/bin:/usr/sbin" -initrd ../os/mados.img
 	awk -v sum="`cat kernel | wc -c -|grep -o "^\S*"`" ' BEGIN {hum[1024^3]="Gb"; hum[1024^2]="Mb"; hum[1024]="Kb"; for (x=1024^3; x>=1024; x/=1024) { if (sum>=x) { printf "%.2f %s\n",sum/x,hum[x]; break; } } if (sum<1024) print "1kb"; } '
 
 clean:

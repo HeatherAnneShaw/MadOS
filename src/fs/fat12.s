@@ -66,10 +66,18 @@ times 450 - (boot_code_end - boot_code) db 0
 ;;;;;;;;;;;;;;;;;;;;;
 ; DATA AREA START
 
-;;;;;;;;;;;;;;;;;;;;;
-; First fat entries
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; FAT entries
+; an entry is 3 nibbles:
+;   000         -> unused
+;   0xFF0-0xFF6 -> reserved cluster
+;   0xFF7       -> bad cluster
+;   0xFF8-0xFFF -> last cluster in file
+;   ***         -> next data cluster
+
 fat1:
-    db 0xFB, 0xFF, 0xFF, 0x00, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF
+    db 0xFB, 0xFF, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x07, 0xF0, 0xFF, 0x00, 0x00
+    ;    0     1     2     3     4     5     6     7     8     9     10    11    12    13
     times 512 - ($ - fat1) db 0
 fat2:
     times 512 - ($ - fat2) db 0
@@ -105,8 +113,7 @@ root:
 ; padd out the rest of the root directory
 times (512 * 4) - ($ - root) db 0
 
-;;;;;;;;;;;;;;;;;;
-; Data area
+
 times 1024 db 0     ; first two data blocks are reserved
 
 ; 2 file
@@ -164,10 +171,24 @@ folder2_data:
         dw 0xA496              ; write time (h,m,s)
         dw 0x4793              ; write date
         dw 6                   ; low order bits of first cluster address
-        dd 0                   ; file size
+        dd 1024                ; file size
 ; cluster padding
 times 512 - ($ - folder2_data) db 0
+
+; 6 file3_data
+file3_data:
+times 512 - ($ - file3_data) db 'A'
+
+; 7 file3_data2
+file3_data2:
+times 512 - ($ - file3_data2) db 'B'
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; padd out the rest of the floppy
 times ((1024 * 1024) + 461373) - ($ - $$) db 0
+
+
+
