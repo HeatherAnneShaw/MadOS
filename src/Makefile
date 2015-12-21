@@ -8,7 +8,7 @@ FONTS = c64-8.o terminus-16.o
 DRIVERS = tables.o timer.o idt.o isr.o irq.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
 EXEC = exec.o elf.o
-FS = madfs.o
+FS = fat.o
 EXTRA = 
 
 all:
@@ -44,7 +44,7 @@ all:
 	cp exec/elf32 ../os/init.elf
 	
 	#filesystem formats
-	gcc $(CFLAGS) -Werror -c fs/madfs.c -o madfs.o
+	gcc $(CFLAGS) -Werror -c fs/fat.c -o fat.o
 
 	# fonts
 #	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
