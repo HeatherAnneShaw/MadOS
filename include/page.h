@@ -5,7 +5,13 @@
 // this stuff is worth it, you can buy me a shot of scotch in return
 ////////////////////////////////////////////////////////////////////////////////
 
+
+#ifndef __PAGE_H__
+#define __PAGE_H__
+
 #include <stdlib.h>
+#include <machine.h>
 
 
 
+#endif
