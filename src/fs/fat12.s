@@ -63,6 +63,8 @@ message:
 boot_code_end:
 times 450 - (boot_code_end - boot_code) db 0
 
+;;;;;;;;;;;;;;;;;;;;;
+; DATA AREA START
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; First fat entries
