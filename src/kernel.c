@@ -93,26 +93,42 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                 {
                     // detect module type
                     unsigned place;
+                    // executables
                     for(place = 0;place < registered_exec_handlers;place++)
                     {
-                        // ramdisks
-                        if(fs_table[i]->is_type((void*) mod->mod_start))
+                        if(exec_table[place]->is_type((void*) mod->mod_start))
                         {
                             puts("WOOT!!!");
-                            fs_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
-                            break;
-                        }
-                        // executables
-                        if(exec_table[i]->is_type((void*) mod->mod_start))
-                        {
-                            exec_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
+                            exec_table[place]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
                             break;
                         }
                     }
-                    printf("mod_start = 0x%x, mod_end = 0x%x\n",
-                        exec_table[place]->name,
-                        (unsigned) mod->mod_start,
-                        (unsigned) mod->mod_end);
+                    if(place < registered_exec_handlers)
+                    {
+                        printf("mod_start = 0x%x, mod_end = 0x%x\n",
+                            exec_table[place]->name,
+                            (unsigned) mod->mod_start,
+                            (unsigned) mod->mod_end);
+                        continue;
+                    }
+                    // ramdisks
+                    for(place = 0;place < registered_fs_handlers;place++)
+                    {
+                        if(fs_table[place]->is_type((void*) mod->mod_start))
+                        {
+                            puts("WOOT!!!");
+                            fs_table[place]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
+                            break;
+                        }
+                    }
+                    if(place < registered_fs_handlers)
+                    {
+                        printf("mod_start = 0x%x, mod_end = 0x%x\n",
+                            fs_table[place]->name,
+                            (unsigned) mod->mod_start,
+                            (unsigned) mod->mod_end);
+                        continue;
+                    }
                 }
     }
     // ammount of lower and upper memory detected

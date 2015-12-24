@@ -49,7 +49,7 @@ typedef struct __attribute__((packed, aligned(1))) mib {
 
 
 typedef struct __attribute__((packed, aligned(1))) mfs_partition_info {
-    bpb_t mib;
+    mib_t mib;
     char blocks[];
     // first two data blocks are reserved for superblock, and journal
 } mfs_partition_info_t;

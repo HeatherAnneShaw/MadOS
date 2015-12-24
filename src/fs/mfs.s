@@ -79,7 +79,7 @@ root:
         db 0            ; creation time
         db 0            ; access time
         dd 3            ; first data block
-        dd 0            ; checksum
+        dd 1            ; checksum
         dd 5            ; file size
 ; padd out the rest of the first root directory block
 times (512) - ($ - root) db 0

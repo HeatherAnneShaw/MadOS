@@ -16,11 +16,10 @@
 
 bool is_mfs(mfs_partition_info_t* pi)
 {
-    char id_test[6];
-    memcpy(id_test, pi->ebr.identifier, 5);
-    id_test[5] = 0;
-    //puts(id_test);
-    if(strcmp(id_test, "mfs") == 0)
+    char id_test[7];
+    memcpy(id_test, pi->mib.magic, 6);
+    id_test[6] = 0;
+    if(strcmp(id_test, "\xeb\x3c\x90MFS") == 0)
         return true;
     else
         return false;
@@ -35,7 +34,7 @@ static char name[] = "mfs";
 void __attribute__((constructor)) init_mfs()
 {
     // set up executable format descriptor
-    puts("Registered mfs filesystem format.");
+    puts("Registered MFS filesystem format.");
     fs_entry_t* mfs = malloc(sizeof(fs_entry_t));
     mfs->name = name;
     mfs->is_type = (void*) is_mfs;
