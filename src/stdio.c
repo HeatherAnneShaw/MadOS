@@ -15,6 +15,7 @@ const char* const sys_errlist[] = {
     "out of memory!!!",
     "bad limit...",
     "not implemented",
+    "too many disks",
     NULL
 };
 

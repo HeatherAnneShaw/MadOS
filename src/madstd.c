@@ -11,9 +11,14 @@
 
 ///////////////////////// FILE IO //////////////////////////////////////////////
 
-int mount(const char* dfile, const char* vpath);
+int open(const char* vpath)
+{
+    // resolve vpath
 
-int chroot(const char* path);
+    // reseolve file path within filesystem
+
+    
+}
 
 ssize_t write(int fildes, const void* buf, size_t nbyte)
 {

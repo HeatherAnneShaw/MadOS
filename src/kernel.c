@@ -98,7 +98,6 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                     {
                         if(exec_table[place]->is_type((void*) mod->mod_start))
                         {
-                            puts("WOOT!!!");
                             exec_table[place]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
                             break;
                         }
@@ -114,17 +113,16 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                     // ramdisks
                     for(place = 0;place < registered_fs_handlers;place++)
                     {
-                        if(fs_table[place]->is_type((void*) mod->mod_start))
+                        if(fs_format_table[place]->is_type((void*) mod->mod_start))
                         {
-                            puts("WOOT!!!");
-                            fs_table[place]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
+                            fs_format_table[place]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
                             break;
                         }
                     }
                     if(place < registered_fs_handlers)
                     {
                         printf("mod_start = 0x%x, mod_end = 0x%x\n",
-                            fs_table[place]->name,
+                            fs_format_table[place]->name,
                             (unsigned) mod->mod_start,
                             (unsigned) mod->mod_end);
                         continue;
@@ -175,4 +173,17 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
 skip_multiboot: ({});       // labels must be part of a statement
     print_memory_blocks();  // print out memory block chain for debugging
+
+    int boot_cfg = open("/etc/boot.cfg");
+    char buffer[12];
+    read(boot_cfg, buffer, 11);
+    puts(buffer);
 }
+
+
+
+
+
+
+
+

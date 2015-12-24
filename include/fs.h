@@ -30,36 +30,19 @@ typedef struct fs_entry {
     bool (*load_module) (char*, void*);   // load as a module
 
 // File IO magic
-    int (*fopen) (const char*, const char*);                     // Open a file to a file descriptor
-    int (*fseek) (int filedes, long int, int);                   // seek to a byte offset in the file
-    int (*fclose) (int filedes);                                 // close a file descriptor
-    size_t (*fread) (void*, size_t, size_t, int filedes);        // read from file
-    size_t (*fwrite) (const void*, size_t, size_t, int filedes); // write to a file
-    int (*creat) (const char* path, mode_t mode);                // create a new file path
-    int (*unlink) (const char* pathname);                        // delete a file
-    int (*symlink) (const char* path1, const char* path2);       // create a symbolic link
-    int (*mkdir) (const char* path, mode_t mode);                // make a new directory
-    int (*rmdir) (const char* pathname);                         // remove a directory
-    int (*fstat) (int fildes, fileinfo_t* buf);                  // returns a file information structure
-    int (*fchmod) (int fildes, int mode);                        // change file attributes
-    int (*fchown) (int fildes, uint8_t owner, uint8_t group);    // change file ownership
-} fs_entry_t;
+    int (*open) (uint8_t, void*, const char*, const char*);                      // Open a file to a file descriptor
+    int (*creat) (uint8_t, void*, const char* path, mode_t mode);                // create a new file path
+    int (*unlink) (uint8_t, void*, const char* pathname);                        // delete a file
+    int (*symlink) (uint8_t, void*, const char* path1, const char* path2);       // create a symbolic link
+    int (*mkdir) (uint8_t, void*, const char* path, mode_t mode);                // make a new directory
+    int (*rmdir) (uint8_t, void*, const char* pathname);                         // remove a directory
+} fs_format_entry_t;
 
-extern fs_entry_t* fs_table[MAX_FS_FORMATS];
+extern fs_format_entry_t* fs_format_table[MAX_FS_FORMATS];
 extern size_t registered_fs_handlers;
 
-extern bool register_fs(fs_entry_t* entry);
+extern bool register_fs(fs_format_entry_t* entry);
 
-typedef struct volume {
-    char* label;                    // volume label
-    uint8_t media_type;             // type of media
-    uint16_t dir_entries;           // max number of directory entries
-    fs_entry_t* fs;                 // all the utilities needed to abstract the filesystem
-    uint8_t volume_number;          // offset in volume table
-} volume_t;
-
-#define MAX_VOLUMES 256
-volume_t volume_table[MAX_VOLUMES]; // table of volumes
 
 //////////////////////////////////////////////////////////////////////////////////
 // How it all works: (Hopefully I get around to doing this in other files lol)  //
@@ -70,9 +53,77 @@ volume_t volume_table[MAX_VOLUMES]; // table of volumes
 //                                                                              //
 //////////////////////////////////////////////////////////////////////////////////
 
+#define MAX_PATH 256
+
+// vfs volume type, used for mount_data
+#define RAMDISK      1
+
+typedef struct __attribute__((packed, aligned(1))) ramdisk {
+    uint32_t ramdisk_start;    // where does the ramdisk begin?
+} ramdisk_t;
+
+typedef struct __attribute__((packed, aligned(1))) volume {
+    char label[12];         // volume label
+    uint8_t type;           // vfs volume type
+    uint32_t mount_data;       // pointer to struct needed to feed filesystem functions
+    fs_format_entry_t* fs;  // all the utilities needed to abstract the filesystem
+} volume_t;
+
+
+typedef struct __attribute__((packed, aligned(1))) vfs_node {
+    char vpath[MAX_PATH];   // node virtual file path
+    uint8_t attributes;     // node file attributes
+    uint8_t ownership;      // upper is group, lower is owner
+    volume_t volume;        // the volume for this vnode
+} vfs_node_t;
+
+#define MAX_VFS_NODES 25
+extern vfs_node_t vfs_node_table[MAX_VFS_NODES];
+
+typedef struct __attribute__((packed, aligned(1))) open_filedesc {
+    size_t offset;          // file offset for seek
+    char path[MAX_PATH];    // absolute path to open file on volume
+    volume_t* volume;       // the volume the file is contained in
+} open_filedesc_t;
+
+#define MAX_OPEN_FILES 256
+open_filedesc_t open_file_table[MAX_OPEN_FILES];
+
+//////////////////////////////////////////////////////////////
+//            VIRTUAL FILESYSTEM NOTES:                     //
+//////////////////////////////////////////////////////////////
+//                                                          //
+// Virtual file attributes conform to MFS attributes        //
+//                                                          //
+// Virtual nodes may be created in any existing directory,  //
+// with files in the underlying filesystem (if any) being   //
+// being ignored if a virtual file of the same name exists  //
+// within the virtual filesystem                            //
+//                                                          //
+// Virtual device files may be written to like any other    //
+// file, and may also contain runtime attributes defined    //
+// in /etc/boot.cfg                                         //
+//                                                          //
+// Virtual device files may not be links                    //
+//                                                          //
+// Any file may be mounted as a virtual node as long as it  //
+// contains a valid filesystem                              //
+//                                                          //
+//////////////////////////////////////////////////////////////
+
+extern bool vfs_mknode(const char* vpath, uint8_t attributes, uint8_t ownership, volume_t* volume);
 
 
 #endif
+
+
+
+
+
+
+
+
+
 
 
 

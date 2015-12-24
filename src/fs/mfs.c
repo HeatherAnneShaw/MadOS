@@ -35,7 +35,7 @@ void __attribute__((constructor)) init_mfs()
 {
     // set up executable format descriptor
     puts("Registered MFS filesystem format.");
-    fs_entry_t* mfs = malloc(sizeof(fs_entry_t));
+    fs_format_entry_t* mfs = malloc(sizeof(fs_format_entry_t));
     mfs->name = name;
     mfs->is_type = (void*) is_mfs;
     mfs->load_module = (void*) mfs_load_module;

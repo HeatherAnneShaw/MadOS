@@ -193,6 +193,36 @@ contains a valid filesystem
 
 
 
+// VFS NODE TABLE
+
+VFS NODE TABLE:
+ |
+ |--+ VFS NODE
+ |  | vpath
+ |  | attributes
+ |  | ownership
+ |  |--+ volume
+ |     | label
+ |     | type
+ |     |--? mount_data
+ |     |  | ramdisk->                   // (for example)
+ |     |             | *ramdisk_start
+ |     |
+ |     |--+ fs
+ |        | name
+ |        | (*is_type)()
+ |        | (*load_module)()
+ |        | (*open)()
+ |        | (*creat)()
+ |        | (*unlink)()
+ |        | (*symlink)()
+ |        | (*mkdir)()
+ |        | (*rmdir)()
+ |
+ .
+ .
+ .
+
 
 
 
