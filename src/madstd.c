@@ -7,6 +7,13 @@
 
 #include <stdlib.h>
 #include <video.h>
+#include <fs.h>
+
+///////////////////////// FILE IO //////////////////////////////////////////////
+
+int mount(const char* dfile, const char* vpath);
+
+int chroot(const char* path);
 
 ssize_t write(int fildes, const void* buf, size_t nbyte)
 {
@@ -29,3 +36,5 @@ ssize_t read(int fildes, void* buf, size_t nbyte)
     }
     return nbyte;
 }
+
+

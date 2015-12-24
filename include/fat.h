@@ -96,6 +96,8 @@ typedef char fat12_t[];
     (fat[(3 * n) / 2] & 0xF0) >> 4 | fat[1 + (3 * n) / 2] << 4)
 
 
+
+
 #endif
 
 

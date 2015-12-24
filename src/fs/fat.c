@@ -27,7 +27,7 @@ bool is_fat12(fat12_partition_info_t* pi)
 
 void fat12_load_module(char* name, fat12_partition_info_t* pi)
 {
-    puts(name);
+    //printf("Mounted: %s on %s\n", name, /* internal disk name */);
 }
 
 static char name[] = "FAT12";

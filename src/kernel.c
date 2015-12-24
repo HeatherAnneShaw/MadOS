@@ -19,10 +19,8 @@
 #include <memory.h>
 #include <fs.h>
 
+// check multiboot information flags
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
-
-// kernel registration tables
-
 
 #if defined(__i386__)
 
@@ -47,9 +45,9 @@ extern void (*__init_array_end []) (multiboot_uint32_t magic, multiboot_info_t* 
 extern void mem_initialize();
 void __init(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
-    mem_initialize(magic, mbi);   // initialize stage 1 memory manager
-    //init_paging();
-    
+    mem_initialize(magic, mbi);            // initialize stage 1 memory manager
+
+    // run global constructors
     size_t i = __init_array_end - __init_array_start;
     while(i--)
         (*__init_array_start[i])(magic, mbi);
@@ -60,6 +58,7 @@ extern void (*__fini_array_start []) (void);
 extern void (*__fini_array_end []) (void);
 void __fini(void)
 {
+    // run global destructors
     size_t i = __fini_array_end - __fini_array_start;
     while(i--)
         (*__fini_array_start[i])();
@@ -67,19 +66,20 @@ void __fini(void)
 
 void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 {
-    if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
+    if(magic != MULTIBOOT_BOOTLOADER_MAGIC)     // Is there a multiboot header?
     {
-        goto skip_multiboot;
+        goto skip_multiboot;                    // if not skip all this nonsense
     }
 
-    // Is boot_device valid? 
+    // Is boot_device valid?
     if(CHECK_FLAG(mbi->flags, 1))
         printf("\nboot_device = 0x%x\n", (unsigned) mbi->boot_device);    
+    
     // Is the command line passed? 
     if(CHECK_FLAG(mbi->flags, 2))
         printf("\ncmdline = %s\n", (char*) mbi->cmdline);
      
-    // Are mods_* valid? 
+    // Are there multiboot modules available?
     if(CHECK_FLAG(mbi->flags, 3))
     {
         multiboot_module_t *mod;
@@ -96,7 +96,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                     for(place = 0;place < registered_exec_handlers;place++)
                     {
                         // ramdisks
-                        if(fs_table[i]->is_type((void*) mod->mod_start) == true)
+                        if(fs_table[i]->is_type((void*) mod->mod_start))
                         {
                             puts("WOOT!!!");
                             fs_table[i]->load_module((char*) mod->cmdline, (void*) mod->mod_start);
@@ -115,6 +115,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
                         (unsigned) mod->mod_end);
                 }
     }
+    // ammount of lower and upper memory detected
     if(CHECK_FLAG(mbi->flags, 0))
         printf("\nmem_lower = %uKB, mem_upper = %uKB\n",
             (unsigned) mbi->mem_lower, (unsigned) mbi->mem_upper);
@@ -156,6 +157,6 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
             }
         }
     }
-skip_multiboot: ({}); // labels must be part of a statement
-    print_memory_blocks();
+skip_multiboot: ({});       // labels must be part of a statement
+    print_memory_blocks();  // print out memory block chain for debugging
 }
