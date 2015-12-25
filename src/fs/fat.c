@@ -62,7 +62,7 @@ void __attribute__((constructor)) init_fat12()
     fat12->name = name;
     fat12->is_type = (void*) is_fat12;
     fat12->load_module = (void*) fat12_load_module;
-    fat12->open = (void*) fat12_open;
+    //fat12->open = (void*) fat12_open;
     // set up memory region for format specifier
     mem_entry_t* p = (void*) fat12 - sizeof(mem_entry_t);
     p->type = STR;

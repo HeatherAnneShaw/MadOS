@@ -13,31 +13,31 @@ EXTRA =
 
 all:
 	# libk
-	gcc $(CFLAGS) -Werror -c stdlib.c -o stdlib.o
-	gcc $(CFLAGS) -Werror -c string.c -o string.o
-	gcc $(CFLAGS) -Werror -c madstd.c -o madstd.o
-	gcc $(CFLAGS) -Werror -c stdio.c -o stdio.o
+	gcc $(CFLAGS) -c stdlib.c -o stdlib.o
+	gcc $(CFLAGS) -c string.c -o string.o
+	gcc $(CFLAGS) -c madstd.c -o madstd.o
+	gcc $(CFLAGS) -c stdio.c -o stdio.o
 	
 	# kernel
 	$(AS) $(AFLAGS) x86/boot.s -o boot.o
-	gcc $(CFLAGS)  -Werror -c kernel.c -o kernel.o
-	gcc $(CFLAGS) -Werror -c memory.c -o memory.o
-	gcc $(CFLAGS) -Werror -c x86/page.c -o page.o
+	gcc $(CFLAGS)  -c kernel.c -o kernel.o
+	gcc $(CFLAGS) -c memory.c -o memory.o
+	gcc $(CFLAGS) -c x86/page.c -o page.o
 	# drivers
 	nasm -f elf32 x86/tables.s -o tables.o
-	gcc $(CFLAGS) -Werror -c x86/port.c -o port.o
+	gcc $(CFLAGS) -c x86/port.c -o port.o
 	gcc $(CFLAGS) -c x86/vga.c -o video.o
 	gcc $(CFLAGS) -c x86/keyboard.c -o keyboard.o
 	gcc $(CFLAGS) -c x86/timer.c -o timer.o
 	
     # descriptor tables
-	gcc $(CFLAGS) -Werror -c x86/idt.c -o idt.o
-	gcc $(CFLAGS) -Werror -c x86/isr.c -o isr.o
-	gcc $(CFLAGS) -Werror -c x86/irq.c -o irq.o
+	gcc $(CFLAGS) -c x86/idt.c -o idt.o
+	gcc $(CFLAGS) -c x86/isr.c -o isr.o
+	gcc $(CFLAGS) -c x86/irq.c -o irq.o
 
 	# executable formats
-	gcc $(CFLAGS) -Werror -c exec/exec.c -o exec.o
-	gcc $(CFLAGS) -Werror -c exec/elf.c -o elf.o
+	gcc $(CFLAGS) -c exec/exec.c -o exec.o
+	gcc $(CFLAGS) -c exec/elf.c -o elf.o
 	
 	$(AS) -f bin exec/elf32.s -o exec/elf32
 	cp exec/elf32 ../os/init.elf
