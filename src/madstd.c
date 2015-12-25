@@ -13,11 +13,7 @@
 
 int open(const char* vpath)
 {
-    // resolve vpath
-
-    // reseolve file path within filesystem
-
-    
+    // construct file descriptor
 }
 
 ssize_t write(int fildes, const void* buf, size_t nbyte)

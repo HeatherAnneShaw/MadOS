@@ -158,6 +158,8 @@ in /etc/boot.cfg
 
 Virtual device files may not be links
 
+Links shall not cross volume boundaries
+
 Any file may be mounted as a virtual node as long as it
 contains a valid filesystem
 
@@ -198,17 +200,17 @@ contains a valid filesystem
 VFS NODE TABLE:
  |
  |--+ VFS NODE
- |  | vpath
- |  | attributes
- |  | ownership
- |  |--+ volume
+ |  | vpath                 // virtual path
+ |  | attributes            // virtual file attributes in MFS format
+ |  | ownership             // owner and group info
+ |  |--+ volume             // volume
  |     | label
  |     | type
- |     |--? mount_data
- |     |  | ramdisk->                   // (for example)
- |     |             | *ramdisk_start
+ |     |--? mount_data      // this is dependant on the volume type
  |     |
- |     |--+ fs
+ |     |
+ |     |
+ |     |--+ fs              // physical filesystem functions
  |        | name
  |        | (*is_type)()
  |        | (*load_module)()
@@ -218,9 +220,9 @@ VFS NODE TABLE:
  |        | (*symlink)()
  |        | (*mkdir)()
  |        | (*rmdir)()
- |
- .
- .
+ |        .
+ .        .
+ .        .
  .
 
 
