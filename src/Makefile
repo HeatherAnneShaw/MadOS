@@ -2,7 +2,7 @@
 AS = nasm
 AFLAGS = -f elf32
 
-CFLAGS = -m32 -nostartfiles -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
+CFLAGS = -m32 -nostartfiles -fstack-protector-strong -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
 OBJ	= kernel boot.o kernel.o memory.o page.o
 FONTS = c64-8.o terminus-16.o
 DRIVERS = tables.o timer.o idt.o isr.o irq.o keyboard.o video.o port.o

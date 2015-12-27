@@ -33,7 +33,7 @@ void fat12_load_module(char* name, fat12_partition_info_t* pi)
     // set up memory region for format specifier
     mem_entry_t* p = (void*) volume->mount_data - sizeof(mem_entry_t);
     p->type = FS;
-    ((ramdisk_t*)(volume->mount_data))->ramdisk_start = &pi;
+    ((ramdisk_t*)(volume->mount_data))->ramdisk_start = (uint32_t) &pi;
     if(vfs_mknode("/", 0/* change all of the 0'2 */, 0, volume))
         printf("Loaded Volume: %s, With Label: %s\n", name, volume->label);
     else
