@@ -10,11 +10,11 @@
 unsigned char inb(unsigned int port)
 {
    unsigned char ret;
-   asm volatile ("inb %%dx,%%al":"=a" (ret):"d" (port));
+   asm volatile ("inb al, dx":"=a" (ret):"d" (port));
    return ret;
 }
 
 void outb(unsigned int port,unsigned char value)
 {
-   asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
+   asm volatile ("outb dx, al": :"d" (port), "a" (value));
 }

@@ -2,7 +2,7 @@
 AS = nasm
 AFLAGS = -f elf32
 
-CFLAGS = -m32 -nostartfiles -fstack-protector-strong -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
+CFLAGS = -masm=intel -m32 -nostartfiles -fstack-protector-strong -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
 OBJ	= kernel boot.o kernel.o memory.o page.o
 DRIVERS = tables.o timer.o idt.o isr.o irq.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
@@ -42,6 +42,7 @@ all:
 	gcc $(CFLAGS) -c exec/elf.c -o elf.o
 	
 	$(AS) -f bin exec/elf32.s -o exec/elf32
+#	$(CC) -m32 -nostdlib -nostartfiles -ffreestanding exec/elf32.c -o exec/elf32
 	cp exec/elf32 ../os/init.elf
 	
 	#filesystem formats

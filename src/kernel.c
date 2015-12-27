@@ -24,6 +24,21 @@
 
 #if defined(__i386__)
 
+bool is_64()
+{
+// QEMU vulnerable to disclosing real host values for cpuid, this is bad for security and for breaking reliant code
+    register int eax asm("eax");
+    register int esi asm("esi");
+    asm(".intel_syntax noprefix\n"
+    "xor eax, eax\n"
+    "cpuid\n"
+    "mov esi, eax\n"
+    "mov eax, 0x80000000\n"
+    "cpuid\n");
+    return (eax == esi) ? false : true;
+}
+
+
 extern void gdt_install();
 extern void idt_install();
 extern void isrs_install();
@@ -174,6 +189,8 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
 skip_multiboot:
     print_memory_blocks();  // print out memory block chain for debugging
 
+    if(is_64())
+        puts("It would appear we have booted on a 64 bit machine...\nIf booted in qemu-system-i386 on a 64bit host,\nthis is a sign that your emulator sucks balls :P");
 }
 
 
