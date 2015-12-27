@@ -31,7 +31,6 @@ int rand(void)
     return __prng_seed;
 }
 
-#if !defined(__arm__)
 
 long strtol(const char* s)
 {
@@ -60,5 +59,4 @@ long strtol(const char* s)
     return (sign ? -r : r);
 }
 
-#endif
 

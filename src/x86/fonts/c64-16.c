@@ -5144,3 +5144,10 @@ const struct bitmap_font c6416_font = {
 	.Bitmap = c6416__font_bitmap__,
 };
 
+
+void __attribute__((constructor)) c6416_init(void)
+{
+    set_text_mode(false, &c6416_font);
+}
+
+

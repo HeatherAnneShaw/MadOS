@@ -4550,3 +4550,7 @@ const struct bitmap_font terminus16_font = {
 	.Bitmap = terminus16__font_bitmap__,
 };
 
+void __attribute__((constructor)) terminus16_init(void)
+{
+    set_text_mode(false, &terminus16_font);
+}

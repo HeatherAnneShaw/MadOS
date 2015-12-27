@@ -5144,3 +5144,8 @@ const struct bitmap_font latin16_font = {
 	.Bitmap = latin16__font_bitmap__,
 };
 
+
+void __attribute__((constructor)) latin16_init(void)
+{
+    set_text_mode(false, &latin16_font);
+}

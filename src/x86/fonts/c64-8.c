@@ -3098,3 +3098,13 @@ const struct bitmap_font c648_font = {
 	.Bitmap = c648__font_bitmap__,
 };
 
+
+void __attribute__((constructor)) c648_init(void)
+{
+    set_text_mode(true, &c648_font);
+}
+
+
+
+
+

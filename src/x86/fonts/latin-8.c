@@ -3096,3 +3096,7 @@ const struct bitmap_font latin8_font = {
 	.Bitmap = latin8__font_bitmap__,
 };
 
+void __attribute__((constructor)) latin8_init(void)
+{
+    set_text_mode(true, &latin8_font);
+}

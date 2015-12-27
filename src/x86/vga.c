@@ -705,10 +705,7 @@ SET TEXT MODES
 *****************************************************************************/
 #include <font.h>
 
-extern const struct bitmap_font c648_font;
-extern const struct bitmap_font terminus16_font;
-
-void set_text_mode(int hi_res)
+void set_text_mode(bool hi_res, struct bitmap_font* font)
 {
     int char_height;
 	if(hi_res)
@@ -716,17 +713,17 @@ void set_text_mode(int hi_res)
 		write_regs(g_90x60_text);
 		video_WIDTH = 90;
         video_HEIGHT = 60;
-        write_font((unsigned char*) c648_font.Bitmap, c648_font.Height);
-        char_height = c648_font.Height;
+        char_height = font->Height;
 	}
 	else
 	{
 		write_regs(g_80x25_text);
 		video_WIDTH = 80;
         video_HEIGHT = 25;
-        write_font((unsigned char*) terminus16_font.Bitmap, terminus16_font.Height);
-        char_height = terminus16_font.Height;
+        char_height = font->Height;
 	}
+
+    write_font((unsigned char*) font->Bitmap, font->Height);
 
 /* tell the BIOS what we've done, so BIOS text output works OK */
 	pokew(0x40, 0x4A, video_WIDTH);	/* columns on screen */
@@ -736,7 +733,7 @@ void set_text_mode(int hi_res)
 	pokeb(0x40, 0x61, char_height - 2);
 	pokeb(0x40, 0x84, video_HEIGHT - 1);	/* rows on screen - 1 */
 	pokeb(0x40, 0x85, char_height);		/* char height */
-    
+
     // set block cursor
     outb(0x3d4, 0xa);
     outb(0x3d5, 0);
@@ -748,13 +745,6 @@ void set_text_mode(int hi_res)
 
 void __attribute__((constructor)) init_vga_graphics(void)
 {
-/*
-    write_regs(g_640x480x16);
-	video_WIDTH = 320;
-	video_HEIGHT = 200;
-	g_write_pixel = write_pixel4p;
-*/
-    set_text_mode(1);
     video_setcolor(MAKE_COLOR(COLOR_LIGHT_GREEN, DEFAULT_BG_COLOR));
     video_clear();
     

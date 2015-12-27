@@ -5144,3 +5144,7 @@ const struct bitmap_font matrix16_font = {
 	.Bitmap = matrix16__font_bitmap__,
 };
 
+void __attribute__((constructor)) matrix16_init(void)
+{
+    set_text_mode(false, &matrix16_font);
+}

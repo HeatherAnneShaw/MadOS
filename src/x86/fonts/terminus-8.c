@@ -2766,3 +2766,8 @@ const struct bitmap_font terminus8_font = {
 	.Bitmap = terminus8__font_bitmap__,
 };
 
+
+void __attribute__((constructor)) terminus8_init(void)
+{
+    set_text_mode(true, &terminus8_font);
+}

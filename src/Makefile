@@ -4,12 +4,14 @@ AFLAGS = -f elf32
 
 CFLAGS = -m32 -nostartfiles -fstack-protector-strong -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I../include -I./x86
 OBJ	= kernel boot.o kernel.o memory.o page.o
-FONTS = c64-8.o terminus-16.o
 DRIVERS = tables.o timer.o idt.o isr.o irq.o keyboard.o video.o port.o
 LIBK = madstd.o stdlib.o string.o stdio.o
 EXEC = exec.o elf.o
 FS = fs.o fat.o mfs.o
 EXTRA = 
+
+# config stuff
+FONT = c64-8.o
 
 all:
 	# libk
@@ -48,17 +50,17 @@ all:
 	gcc $(CFLAGS) -c fs/mfs.c -o mfs.o
 
 	# fonts
-#	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
-#	gcc $(CFLAGS) -c x86/fonts/latin-16.c -o latin-16.o
+	gcc $(CFLAGS) -c x86/fonts/latin-8.c -o latin-8.o
+	gcc $(CFLAGS) -c x86/fonts/latin-16.c -o latin-16.o
 	gcc $(CFLAGS) -c x86/fonts/c64-8.c -o c64-8.o
-#	gcc $(CFLAGS) -c x86/fonts/c64-16.c -o c64-16.o
-#	gcc $(CFLAGS) -c x86/fonts/terminus-8.c -o terminus-8.o
+	gcc $(CFLAGS) -c x86/fonts/c64-16.c -o c64-16.o
+	gcc $(CFLAGS) -c x86/fonts/terminus-8.c -o terminus-8.o
 	gcc $(CFLAGS) -c x86/fonts/terminus-16.c -o terminus-16.o
-#	gcc $(CFLAGS) -c x86/fonts/matrix-8.c -o matrix-8.o
-#	gcc $(CFLAGS) -c x86/fonts/matrix-16.c -o matrix-16.o
+	gcc $(CFLAGS) -c x86/fonts/matrix-8.c -o matrix-8.o
+	gcc $(CFLAGS) -c x86/fonts/matrix-16.c -o matrix-16.o
 
 	# link it on up
-	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FS) $(EXEC) $(DRIVERS) $(FONTS) $(EXTRA) $(LIBK)
+	gcc -T x86/linker.ld $(CFLAGS) -z max-page-size=0x1000 -o $(OBJ) $(FS) $(EXEC) $(DRIVERS) $(FONT) $(EXTRA) $(LIBK)
 
 test:
 	cp kernel ../os/kernel

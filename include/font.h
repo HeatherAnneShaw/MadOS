@@ -1,3 +1,8 @@
+#ifndef __FONT_H__
+#define __FONT_H__
+
+#include <stdlib.h>
+
 // (c) 2009, 2010 Lutz Sammer, License: AGPLv3
 
 	/// bitmap font structure
@@ -268,3 +273,5 @@ struct bitmap_font {
 #define XXXXXXX_ 0xFE
 #define XXXXXXXX 0xFF
 	/// @}
+
+#endif

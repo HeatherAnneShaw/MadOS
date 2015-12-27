@@ -3096,3 +3096,7 @@ const struct bitmap_font matrix8_font = {
 	.Bitmap = matrix8__font_bitmap__,
 };
 
+void __attribute__((constructor)) matrix8_init(void)
+{
+    set_text_mode(true, &matrix8_font);
+}
