@@ -61,12 +61,6 @@ void __attribute__((constructor)) init_vfs(void)
     puts("VFS initialized");
 }
 
-void __attribute((destructor)) fini_vfs(void)
-{
-    printf("Ramdisk loaded in vfs at: %x\n\n\n\n", vfs_node_table[0]);
-}
-
-
 
 
 

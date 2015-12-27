@@ -173,11 +173,7 @@ void main(multiboot_uint32_t magic, multiboot_info_t* mbi)
     }
 skip_multiboot:
     print_memory_blocks();  // print out memory block chain for debugging
-/*
-    int boot_cfg = open("/etc/boot.cfg");
-    char buffer[12];
-    read(boot_cfg, buffer, 11);
-    puts(buffer);*/
+
 }
 
 
