@@ -22,7 +22,8 @@ static inline void __native_flush_tlb_single(uint32_t addr)
 
 void map_page(uint64_t* pt, uint32_t physaddr, uint32_t virtualaddr, unsigned int flags)
 {
-    page_table[(physaddr ^ 0x3FFF) / 0x1000] = (virtualaddr ^ 0x3FFF) << 12 | 3; // map address and mark it present/writable
+    virtualaddr = (virtualaddr >> 12) << 12;
+    page_table[physaddr/0x1000] = virtualaddr | 3; // map address and mark it present/writable
     virtualaddr += 0x1000;
 }
 
@@ -42,7 +43,11 @@ void init_paging(void)
 
     //set the page table into the PD and mark it present/writable
     page_directory[0] = (uint64_t) &page_table | 3;
+    page_directory[1] = (uint64_t) &page_table | 3;
+    page_directory[2] = (uint64_t) &page_table | 3;
+    page_directory[3] = (uint64_t) &page_table | 3;
 
+    // identity map the first 4MB
     id_page(page_table, 0, 1024);
 
      // set bit5 in CR4 to enable PAE

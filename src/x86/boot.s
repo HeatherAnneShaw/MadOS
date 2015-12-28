@@ -29,7 +29,7 @@ extern STACK_TOP
 _start:
     ; Set up the stack
     mov esp, STACK_TOP
-    mov tss + 4, esp
+    
     ; Push the pointer to the Multiboot information structure.
     push   ebx
     ; Push the magic value. 

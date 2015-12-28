@@ -36,10 +36,11 @@ void exec_add_schedule(ps_context_t* p, uint32_t entry)
     */
     // setup paging, then context switching / registering
     p->context.eip = entry;
-    //p->stack = (uint32_t) malloc(DEFAULT_STACK_SIZE);
+    p->stack = (uint32_t) malloc(DEFAULT_STACK_SIZE);
+    
     // set the stack to something reasonable using DEFAULT_STACK_SIZE
-    //p->context.esp = p->stack + DEFAULT_STACK_SIZE;
-    //p->context.ebp = p->stack;
+    p->context.esp = p->stack + DEFAULT_STACK_SIZE;
+    p->context.ebp = p->stack;
 
     p->context.esp = entry; // WHY?
     p->context.ebp = entry; // WHY?
@@ -80,6 +81,7 @@ void exec_loadmodule(char* name, void* code, uint32_t vaddr, uint32_t entry, uin
 
     extern uint64_t* page_table;
     map_page(page_table, code, vaddr, 3);
+    map_page(page_table, p, vaddr + size, 3);
     
     exec_add_schedule(p, entry);
     printf("%s ->  padd: 0x%x, vadd: 0x%x, entry: 0x%x, size: %iB\n", name, code, vaddr, entry, size);
