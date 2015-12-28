@@ -73,6 +73,8 @@ extern void (*__fini_array_start []) (void);
 extern void (*__fini_array_end []) (void);
 void __fini(void)
 {
+    init_paging();
+
     // run global destructors
     size_t i = __fini_array_end - __fini_array_start;
     while(i--)
@@ -190,7 +192,7 @@ skip_multiboot:
     print_memory_blocks();  // print out memory block chain for debugging
 
     if(is_64())
-        puts("It would appear we have booted on a 64 bit machine...\nIf booted in qemu-system-i386 on a 64bit host,\nthis is a sign that your emulator sucks balls :P");
+        puts("It would appear we have booted on a 64 bit machine...\nIf booted in qemu-system-i386 on a 64bit host,\nthis is a sign that your emulator sucks balls :P\n");
 }
 
 
