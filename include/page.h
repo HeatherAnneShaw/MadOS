@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <machine.h>
 
-
+extern void map_page(uint64_t* pt, uint32_t physaddr, uint32_t virtualaddr, unsigned int flags);
+extern void init_paging(void);
 
 #endif

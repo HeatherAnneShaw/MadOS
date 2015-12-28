@@ -2,9 +2,8 @@
 section .text
 global _start
 
-;org 0x1337
-%define KLUDGE 0x11d054
-org 0x11d054
+org 0x809006
+
 ehdr:                                  ; Elf32_Ehdr
 	db 0x7F, "ELF", 1, 1, 1            ;   e_ident
 	times 9 db 0
@@ -44,7 +43,7 @@ string:
 _start:
     mov eax, 4
     mov ebx, 1
-    lea ecx, [KLUDGE]
+    lea ecx, [string]
     mov edx, 36
     int 31
 

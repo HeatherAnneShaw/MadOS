@@ -43,7 +43,6 @@ extern void gdt_install();
 extern void idt_install();
 extern void isrs_install();
 extern void irq_install();
-extern void init_paging();
 
 void __attribute__((constructor)) handler_initialize(void)
 {

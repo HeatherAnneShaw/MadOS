@@ -12,23 +12,38 @@
 
 uint64_t pdpt[4] __attribute__((aligned(0x20))); // must be aligned to (at least)0x20, ...
     // ... turning out that you can put more of them into one page, saving memory
-uint64_t page_directory[512] __attribute__((aligned(0x1000)));
-uint64_t page_table[512] __attribute__((aligned(0x1000)));
+uint64_t page_directory[1024] __attribute__((aligned(0x1000)));
+uint64_t page_table[1024] __attribute__((aligned(0x1000)));
 
+static inline void __native_flush_tlb_single(uint32_t addr)
+{
+   asm volatile("invlpg [%0]" ::"r" (addr) : "memory");
+}
+
+void map_page(uint64_t* pt, uint32_t physaddr, uint32_t virtualaddr, unsigned int flags)
+{
+    page_table[(physaddr ^ 0x3FFF) / 0x1000] = (virtualaddr ^ 0x3FFF) << 12 | 3; // map address and mark it present/writable
+    virtualaddr += 0x1000;
+}
+
+void id_page(uint64_t* pt, uint64_t address, int size)
+{
+    for(unsigned int i = 0;i < size;i++)
+    {
+        page_table[i] = address | 3; // map address and mark it present/writable
+        address += 0x1000;
+    }
+}
 
 void init_paging(void)
 {
     // set the page directory into the PDPT and mark it present
-    pdpt[0] = (uint64_t)&page_directory | 1;
+    pdpt[0] = (uint64_t) &page_directory | 1;
 
     //set the page table into the PD and mark it present/writable
-    page_directory[0] = (uint64_t)&page_table | 3;
-    
-    for(unsigned int i = 0, address = 0;i < 512;i++)
-    {
-        page_table[i] = address | 3; // map address and mark it present/writable
-        address = address + 0x1000;
-    }
+    page_directory[0] = (uint64_t) &page_table | 3;
+
+    id_page(page_table, 0, 1024);
 
      // set bit5 in CR4 to enable PAE
     asm volatile (
