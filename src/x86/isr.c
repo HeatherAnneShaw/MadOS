@@ -145,8 +145,7 @@ void fault_handler(struct regs *r)
     }
     else if (r->int_no < 32)
     {
-        puts(exception_messages[r->int_no]);
-        puts(" Exception. I need to do things when this happens soon lol\n");
+        printf("%s Exception. I need to do things when this happens soon lol\n", exception_messages[r->int_no]);
         halt();
     }
 }

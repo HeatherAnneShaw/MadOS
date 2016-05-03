@@ -192,6 +192,13 @@ skip_multiboot:
 
     if(is_64())
         puts("It would appear we have booted on a 64 bit machine...\nIf booted in qemu-system-i386 on a 64bit host,\nthis is a sign that your emulator sucks balls :P\n");
+    void* a = malloc(0x1000);
+    void* b = malloc(0x1000);
+    strcpy(a, "aaaa\n");
+    strcpy(b, "bbbb\n");
+    printf("%s%s", a, b);
+    map_page(&b, &a, 3);
+    printf("%s%s", a, b);
 }
 
 

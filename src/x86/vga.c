@@ -44,6 +44,15 @@ void video_update_cursor(int x, int y)
     outb(0x3D5, (unsigned char )((position>>8)&0xFF));
 }
 
+void turn_off_blink()
+{
+    inb(0x3DA);
+    outb(0x3C0, 0x30);
+    uint8_t x = inb(0x3c1);
+    outb(0x3C0, x & 0xF7);
+    outb(0x3C0, 0x20);
+}
+
 void video_cursor_pos(cursor_pos_t* st)
 {
     st->x = video_column;
@@ -737,9 +746,9 @@ void set_text_mode(bool hi_res, struct bitmap_font* font)
     // set block cursor
     outb(0x3d4, 0xa);
     outb(0x3d5, 0);
-/* set white-on-black attributes for all text */
-	for(unsigned int i = 0; i < video_WIDTH * video_HEIGHT; i++)
-		pokeb(0xB800, i * 2 + 1, 7);
+
+    // turn off offesnsive blinking text
+    turn_off_blink();
 }
 
 
